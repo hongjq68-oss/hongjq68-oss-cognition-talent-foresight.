@@ -1,0 +1,681 @@
+[
+ {
+  "url": "https://cognition.ai/blog/swe-2-flash",
+  "title": "Introducing SWE-2 Flash",
+  "published_on": "2026-11-04",
+  "summary": "We’re introducing SWE-2 Flash, a fully American coding model that sets a new bar for intelligence at low cost and high speed.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/practical-guide-to-security-november-2026",
+  "title": "A Practical Guide to Security in November 2026",
+  "published_on": "2026-11-03",
+  "summary": "The security best practices we’ve known about for years still work. Here’s a recap of recent incidents and a practical guide you can use to step up your security now.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/corridor-joining-cognition",
+  "title": "Corridor is Joining Cognition",
+  "published_on": "2026-10-28",
+  "summary": "Corridor is joining Cognition, where we’ll be taking Devin Security to the next level.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/frontier-code-2.0",
+  "title": "FrontierCode 2.0",
+  "published_on": "2026-10-27",
+  "summary": "FrontierCode 2.0 is a new generation of our FrontierCode benchmark: more diverse, challenging tasks from more repositories, graded by open-source maintainers on whether agent output is actually mergeable.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-security",
+  "title": "Devin Security: Find and fix your most dangerous vulnerabilities",
+  "published_on": "2026-10-26",
+  "summary": "A major upgrade to Devin Security, with deep scans powered by frontier cyber models, and hundreds of millions of dollars in Devin credits to help enterprises find and fix their most critical vulnerabilities.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/building-in-london",
+  "title": "Building in London",
+  "published_on": "2026-10-22",
+  "summary": "With our UK team expanding by more than 200% in six months, we’ve opened a new office at The Gilbert in Finsbury Square and brought in senior leaders to work with customers across the region.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/american-forge-fellowship",
+  "title": "National Design Studio and Cognition Launch the American Forge Residency",
+  "published_on": "2026-10-16",
+  "summary": "National Design Studio and Cognition are looking for engineers to help modernize America’s federal software infrastructure.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/1b-run-rate",
+  "title": "Cognition Crosses $1B in Annualized Revenue Run Rate",
+  "published_on": "2026-09-25",
+  "summary": "A milestone that belongs to our customers.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-comes-to-sao-paulo",
+  "title": "Building the Future of Software Engineering in Latin America",
+  "published_on": "2026-09-22",
+  "summary": "Cognition is expanding into Latin America, starting in São Paulo, building on years of work with the region’s largest banks, consumer leaders, and technology companies.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/aws-sca",
+  "title": "Cognition and AWS team up to help ambitious teams ship more, faster",
+  "published_on": "2026-09-15",
+  "summary": "Cognition and AWS have entered a multi-year Strategic Collaboration Agreement to help enterprises deploy autonomous engineers in production, move legacy workloads to AWS faster, and clear engineering backlogs.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/local-fusion",
+  "title": "Introducing Fusion in Devin Desktop & CLI",
+  "published_on": "2026-09-11",
+  "summary": "Fusion is the most efficient frontier harness for Opus, Fable and Astra, up to 39% more efficient compared to other model harnesses across major coding benchmarks. Today, we’re making it available in Devin Desktop and CLI.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/welcoming-dioxus",
+  "title": "Welcoming Dioxus to Cognition",
+  "published_on": "2026-09-10",
+  "summary": "Jonathan Kelley and the Dioxus team are joining Cognition. We will continue supporting Dioxus, Blitz, Taffy, and Subsecond while increasing investment in Dioxus-Native and Blitz.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-2",
+  "title": "Introducing SWE-2: Pushing the Pareto Frontier",
+  "published_on": "2026-09-10",
+  "summary": "Today we’re introducing SWE-2, our most advanced coding model yet. SWE-2 delivers highly competitive agentic coding performance across multiple effort levels, pushing the Pareto frontier of capability and inference cost.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/factoring-rsa-260",
+  "title": "Factoring RSA-260",
+  "published_on": "2026-09-09",
+  "summary": "How Devin and a Cognition researcher built the world’s highest-performance GPU lattice siever, to make factoring numbers 10x cheaper than the previous state of the art",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/series-e",
+  "title": "Do it all with Devin: Announcing our Series E",
+  "published_on": "2026-09-08",
+  "summary": "Cognition has raised over $2B at a $48B valuation, led by Andreessen Horowitz and Accel, to build the future of software engineering.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/ltm-cognition-partnership",
+  "title": "LTM Partners with Cognition To Reduce Cyber Risk in Financial Services",
+  "published_on": "2026-07-28",
+  "summary": "LTM has partnered with Cognition to deploy Devin, the AI software engineer, across its global client base and cybersecurity practice serving over 260 clients, including 26 of the Fortune 500 and the top 5 global banks.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/interaction",
+  "title": "Welcoming The Interaction Company",
+  "published_on": "2026-07-23",
+  "summary": "Today, we’re welcoming The Interaction Company of California, the makers of Poke, to Cognition.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/cognition-doe-genesis-mission",
+  "title": "Cognition Signs MOU with U.S. Department of Energy to Join The Genesis Mission",
+  "published_on": "2026-07-22",
+  "summary": "Cognition has signed a memorandum of understanding with the U.S. Department of Energy to join the Genesis Mission, a national initiative described as \"America's Manhattan Project for AI.\"",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/welcoming-tierzero",
+  "title": "Welcoming TierZero to Cognition",
+  "published_on": "2026-07-20",
+  "summary": "Anhang and Yun have gone deep on everything that keeps software running once it ships, and we are excited to bring their work on automations into Devin.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/one-year-of-building-together",
+  "title": "One Year of Building Together",
+  "published_on": "2026-07-14",
+  "summary": "One year ago, Cognition and Windsurf came together over the craziest 72 hours of our lives. Here’s what we’ve built together since.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/making-fable-cheaper-than-opus",
+  "title": "Making Fable Cheaper Than Opus",
+  "published_on": "2026-07-13",
+  "summary": "Fable 5 costs twice as much per token as Opus 4.8. But when we ran both models on FrontierCode 1.1 using our new Fusion architecture, Fable cost less — and scored higher. This post explains why, and what that means for pricing agentic work.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-fedramp-high-in-process",
+  "title": "Devin is Now FedRAMP High In-Process, Unlocking Autonomous AI Engineering for Federal Agencies",
+  "published_on": "2026-07-13",
+  "summary": "Cognition’s entire platform is now FedRAMP Class D (High) In-Process and listed on the FedRAMP Marketplace, giving engineering teams working in federal environments access to Devin, the autonomous cloud AI software engineer.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-1-7",
+  "title": "SWE-1.7: Frontier Intelligence at a Fraction of the Cost",
+  "published_on": "2026-07-08",
+  "summary": "Today, we’re launching SWE-1.7, the most capable model we’ve trained so far. It reaches frontier-level intelligence at a much lower cost, advancing the cost-performance Pareto curve.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/measuring-open-source-model-trustworthiness",
+  "title": "Measuring the Trustworthiness of Open-Source-Derived Models",
+  "published_on": "2026-07-08",
+  "summary": "We built an evaluation suite to assess model trustworthiness. Our results indicate that models developed from open-source models can be trusted, provided that sufficient thought and care is put into their development.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/frontier-code-1.1",
+  "title": "FrontierCode 1.1",
+  "published_on": "2026-07-07",
+  "summary": "FrontierCode 1.1 refines our methodology to distinguish legitimate internet use from unfair use.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-security-vulnerability-remediation-program",
+  "title": "Introducing the Devin Security Vulnerability Remediation Program",
+  "published_on": "2026-07-02",
+  "summary": "The Devin Security Vulnerability Remediation Program helps organizations clear their vulnerability backlog and set up continuous remediation.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/introducing-devin-security-swarm",
+  "title": "Introducing Devin Security Swarm",
+  "published_on": "2026-07-01",
+  "summary": "Devin Security Swarm finds vulnerabilities across the codebase, validates exploitability at runtime, and ships remediation PRs.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-fusion",
+  "title": "Devin Fusion: Frontier Performance at 60% Lower Cost",
+  "published_on": "2026-06-29",
+  "summary": "Introducing Devin Fusion: a hybrid-model harness that keeps frontier-level coding intelligence while cutting costs with sidekick agents and dynamic routing.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/frontier-code",
+  "title": "Introducing FrontierCode",
+  "published_on": "2026-06-08",
+  "summary": "Today’s coding benchmarks have established that models can write correct code, but the question we should really be asking is: can models actually write good code?",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/ai-productivity",
+  "title": "Estimating the Productivity of an Autonomous AI Software Engineer",
+  "published_on": "2026-06-04",
+  "summary": "Engineering leaders want to know how much value AI is actually providing. We built a system that measures the number of human-equivalent hours of Devin's work.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/ai-guarantee",
+  "title": "AI should earn its keep: Introducing the AI Productivity Guarantee",
+  "published_on": "2026-06-04",
+  "summary": "Introducing the AI Productivity Guarantee for enterprise customers. If Devin delivers less engineering value than you’re paying for, Cognition will fund your usage until it does, up to $10M.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/introducing-devin-desktop",
+  "title": "Introducing Devin Desktop",
+  "published_on": "2026-06-02",
+  "summary": "The next generation of Windsurf, built around Devin Cloud, the Agent Command Center, and a full IDE for when you need to jump into the code.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/testing-development",
+  "title": "Verifying Agentic Development at Scale",
+  "published_on": "2026-05-29",
+  "summary": "What we’ve learned building end-to-end testing capabilities in Devin’s virtual machine",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/series-d",
+  "title": "More Devins in More Places",
+  "published_on": "2026-05-27",
+  "summary": "Cognition has raised over $1B at a $26B valuation, led by Lux Capital, General Catalyst, and 8VC.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-is-getting-a-windows-pc",
+  "title": "Devin is Getting a Windows PC",
+  "published_on": "2026-05-21",
+  "summary": "Devin now builds, runs, and tests natively in Windows VMs, bringing the full power of autonomous AI engineering to the world's most mature developer ecosystem.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/auto-triage",
+  "title": "Introducing Auto-Triage",
+  "published_on": "2026-05-18",
+  "summary": "Devin can monitor for bugs, alerts, and incidents. When something breaks, Devin responds immediately, investigates with your tools, connects related reports, and can open a PR.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/android-emulator",
+  "title": "Devin now supports Android emulators",
+  "published_on": "2026-05-13",
+  "summary": "Devin can now spin up an Android Virtual Device (AVD), enabling autonomous development for Android applications.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/how-to-automate-failure-triages-and-10x-test-generation-what-weve-learned-deploying-ai-across-hilsil-workflows",
+  "title": "How to Automate Failure Triages and 10x Test Generation: What We've Learned Deploying AI Across HIL/SIL Workflows",
+  "published_on": "2026-05-11",
+  "summary": "Requirements and ticket volumes keep growing while engineering capacity hasn't kept up. Through deployments with RV Tech and Mercedes, we share how AI is shortening validation cycles, automating failure triage, and saving thousands of engineering hours monthly.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/singapore",
+  "title": "Devin heads east: Cognition opens its Singapore APAC headquarters",
+  "published_on": "2026-04-30",
+  "summary": "Cognition is expanding its APAC presence from Singapore, where enterprise demand, developer talent, and national AI adoption are converging. With Richard Spence leading the region, we’re helping teams across Asia-Pacific bring autonomous software engineering into production.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/mercedes-benz-cognition",
+  "title": "Engineering in the fast lane: Mercedes-Benz partners with Cognition",
+  "published_on": "2026-04-27",
+  "summary": "Mercedes-Benz is deploying Devin and Windsurf across its global engineering organization, starting with legacy modernization, cloud-native development, and logistics.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-for-terminal",
+  "title": "Devin CLI: Start Local, Hand Off to the Cloud",
+  "published_on": "2026-04-27",
+  "summary": "Start a Devin session in your terminal. When the work outgrows your laptop, hand the same session off to the cloud and keep going.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/what-we-learned-building-cloud-agents",
+  "title": "What We Learned Building Cloud Agents",
+  "published_on": "2026-04-23",
+  "summary": "Building cloud agents is difficult. We share some learnings from building Devin.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/multi-agents-working",
+  "title": "Multi-Agents: What's Actually Working",
+  "published_on": "2026-04-22",
+  "summary": "10 months ago I argued against building multi-agent systems. Today, a narrower class works, where agents contribute intelligence while writes stay single-threaded. I want to share what we've learned building them at Cognition.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-in-windsurf",
+  "title": "Devin in Windsurf",
+  "published_on": "2026-04-15",
+  "summary": "Local agents make you faster. Cloud agents do the work while you're not there.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-check-10x-faster",
+  "title": "Introducing SWE-Check: 10x Faster Bug Detection",
+  "published_on": "2026-04-14",
+  "summary": "Smaller specialized models can match or beat frontier generalists on the tasks they're trained for. Working with Applied Compute, we RL-trained SWE-check, a bug detection model that matches Opus 4.6 on our internal evals while running ~10x faster.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/new-self-serve-plans-for-devin",
+  "title": "New self-serve plans for Devin",
+  "published_on": "2026-04-14",
+  "summary": "We’re retiring the old Core and Team plans and introducing a new lineup: Free, Pro, Max, Teams, and Enterprise. We’re also beginning to charge for products that have been free until now, including Ask Devin and Devin Review.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/launching-in-japan",
+  "title": "Launching in Japan with Takumi Masai",
+  "published_on": "2026-04-09",
+  "summary": "Today we're launching Cognition Japan, our first expansion into Asia, to partner with Japanese enterprises ready to transform how software gets built.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/how-devin-is-modernizing-cobol-at-fortune-500-companies",
+  "title": "How Devin Is Modernizing COBOL at Fortune 500 Companies",
+  "published_on": "2026-04-08",
+  "summary": "We wrote up why COBOL is so hard for agents, what it takes to get it right, and where Devin is delivering today.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-1-6",
+  "title": "Introducing SWE 1.6: Improving Model UX",
+  "published_on": "2026-04-07",
+  "summary": "We're releasing SWE-1.6, our latest model optimized for both intelligence and model UX.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-can-now-schedule-devins",
+  "title": "Devin can now Schedule Devins",
+  "published_on": "2026-03-20",
+  "summary": "Devin can now schedule its own recurring sessions. Run a task once, and if it goes well, tell Devin to keep doing it. It maintains state between runs, so each session picks up where the last one left off.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-can-now-manage-devins",
+  "title": "Devin can now Manage Devins",
+  "published_on": "2026-03-19",
+  "summary": "Devin can now break down large tasks and delegate them to a team of managed Devins, with each running in its own isolated VM in parallel.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-1-6-preview",
+  "title": "An Early Preview of SWE-1.6 and Research Update",
+  "published_on": "2026-03-01",
+  "summary": "We are sharing an early preview of our ongoing SWE-1.6 training run.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/how-cognition-uses-devin-to-build-devin",
+  "title": "How Cognition Uses Devin to Build Devin",
+  "published_on": "2026-02-27",
+  "summary": "Devin is a cloud agent platform for engineering teams. You work with it like a teammate — give it tasks, review its PRs, and let it handle your backlog. Here's how we use it to build Devin itself.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/cognition-for-government",
+  "title": "Introducing Cognition for Government",
+  "published_on": "2026-02-25",
+  "summary": "Today, we launch Cognition for Government to modernize America’s critical infrastructure with AI software engineering.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/introducing-devin-2-2",
+  "title": "Introducing Devin 2.2",
+  "published_on": "2026-02-24",
+  "summary": "Today we’re releasing Devin 2.2, the most important update to Devin since launch.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/closing-the-agent-loop-devin-autofixes-review-comments",
+  "title": "Closing the Agent Loop: Devin Autofixes Review Comments",
+  "published_on": "2026-02-10",
+  "summary": "We built a feature that massively increased our internal token spend on Devin. But our PRs are now much more free of bugs and we can't go back.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/cognizant-cognition",
+  "title": "Cognizant partners with Cognition to scale Devin and Windsurf across its engineering organization and global clients",
+  "published_on": "2026-01-28",
+  "summary": "Cognizant has partnered with Cognition to deploy Devin and Windsurf across its engineering teams and customer base.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/cognition-london",
+  "title": "Devin crosses the pond: Cognition opens its London office",
+  "published_on": "2026-01-28",
+  "summary": "Cognition expands to Europe and opens a London office.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-review",
+  "title": "Devin Review: AI to Stop Slop",
+  "published_on": "2026-01-21",
+  "summary": "As code generation gets easier, code review is the new bottleneck. That's why we're launching a new way to quickly review and understand complex PRs in our latest tool for codebase understanding - augmenting human attention with AI.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/infosys-cognition",
+  "title": "Infosys partners with Cognition to expand engineering capacity and help scale its enterprise business",
+  "published_on": "2026-01-07",
+  "summary": "Infosys, a global leader in digital services and consulting, has partnered with Cognition to deploy Devin, the AI software engineer, across its organization and global client base.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-annual-performance-review-2025",
+  "title": "Devin's 2025 Performance Review: Learnings From 18 Months of Agents At Work",
+  "published_on": "2025-11-14",
+  "summary": "Eighteen months since launch, Devin’s gone from tackling small projects, to deeply embedding in engineering teams at thousands of companies, including some of the largest businesses in the world. We decided it was well past time for Devin to get a performance review - just like any human engineer.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/codemaps",
+  "title": "Windsurf Codemaps: Understand Code, Before You Vibe It",
+  "published_on": "2025-11-04",
+  "summary": "Codemaps is meant to offer a shared understanding of a system between humans and AI, enabling your AI to teach you about the code you are looking at quickly and elegantly. A codemap can be generated about any system or snippet to illuminate its code paths, helping users learn and recall. Codemaps allows AI to be a partner that explains code in an accurate and consistent way, rather than generating tons of inscrutable slop.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-1-5",
+  "title": "Introducing SWE-1.5: Our Fast Agent Model",
+  "published_on": "2025-10-29",
+  "summary": "Today we’re releasing SWE-1.5, the latest in our family of models optimized for software engineering. It is a frontier-size model with hundreds of billions of parameters that achieves near-SOTA coding performance. It also sets a new standard for speed: we partnered with Cerebras to serve it at up to 950 tok/s – 6x faster than Haiku 4.5 and 13x faster than Sonnet 4.5. SWE-1.5 is now available in Windsurf!",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/dotnet-migration-with-devin",
+  "title": "Automating .NET Framework → .NET Core with Devin",
+  "published_on": "2025-10-28",
+  "summary": "Engineering teams dread migrating from .NET Framework to .NET Core. However, autonomous coding agents are rapidly changing the previously known timelines. What once took months, teams are now finishing in as little as two weeks — with Devin.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-grep",
+  "title": "Introducing SWE-grep and SWE-grep-mini: RL for Multi-Turn, Fast Context Retrieval",
+  "published_on": "2025-10-16",
+  "summary": "We trained SWE-grep and SWE-grep-mini, fast agentic models specialized in highly parallel context retrieval. They match the retrieval capabilities of frontier coding models, while taking an order of magnitude less time. Available now in Windsurf’s new Fast Context subagent, and our new SWE-grep demo playground!",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-agent-preview-sonnet-4-5",
+  "title": "Announcing Devin Agent Preview with Sonnet 4.5",
+  "published_on": "2025-09-29",
+  "summary": "Today we're releasing Claude Sonnet 4.5 in Devin, alongside our new Devin Agent Preview that's over 2x faster and 12% better on our Jr. Developer Evals.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-sonnet-4-5-lessons-and-challenges",
+  "title": "Rebuilding Devin for Claude Sonnet 4.5: Lessons and Challenges",
+  "published_on": "2025-09-29",
+  "summary": "We rebuilt Devin for Claude Sonnet 4.5. The new version is 2x faster, 12% better on our Junior Developer Evals, and it's available now in Agent Preview. For users who prefer the old Devin, that remains available.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/funding-growth-and-the-next-frontier-of-ai-coding-agents",
+  "title": "Funding, growth, and the next frontier of AI coding agents",
+  "published_on": "2025-09-08",
+  "summary": "Cognition has raised over $400M at a $10.2B post-money valuation led by Founders Fund. Other existing investors are similarly doubling down including Lux Capital and 8VC (who jointly led our previous round), Neo, Elad Gil, Definition Capital, and Swish VC. We’re also joined by new investors including Bain Capital Ventures, Hanabi Capital, and D1 Capital.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/how-eight-sleep-uses-devin-as-a-data-analyst",
+  "title": "How Eight Sleep Uses Devin as a Data Analyst",
+  "published_on": "2025-09-04",
+  "summary": "Building the future of sleep requires us to make data-driven product, operations, and finance decisions. But as a small team, we faced a challenge every scaling company knows well: the flood of random data asks. We needed leverage. So we hired an analyst who never sleeps: Devin AI.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/ai-data-analyst",
+  "title": "Build Your Own AI Data Analyst",
+  "published_on": "2025-08-28",
+  "summary": "Our #analytics Slack channel looks completely different than it did a year ago. Like most companies, we used to struggle with analytics. Even seemingly simple questions like \"Why is enterprise plan revenue spiking for this cohort?\" led to ping chains of doom. Getting answers often took days or weeks. Now, it takes minutes. What changed? We trained our own 24/7 on-demand data scientist.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/from-jenkins-to-github-actions",
+  "title": "Enterprise Guide: Migrating from Jenkins to GitHub Actions at Scale",
+  "published_on": "2025-08-05",
+  "summary": "How modern DevOps teams are replacing legacy CI/CD pipelines and accelerating transformation using AI automation.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/mcp-marketplace",
+  "title": "Devin's MCP Marketplace",
+  "published_on": "2025-07-22",
+  "summary": "You can now connect your favorite MCP servers to Devin.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/windsurf",
+  "title": "Cognition’s acquisition of Windsurf",
+  "published_on": "2025-07-14",
+  "summary": "Cognition has signed a definitive agreement to acquire Windsurf, the agentic IDE.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/coding-agents-101-the-art-of-actually-getting-things-done",
+  "title": "Coding Agents 101: The Art of Actually Getting Things Done",
+  "published_on": "2025-06-27",
+  "summary": "The year is 2025. Coding agents aren't magic, but they're about the closest thing we have. We've noticed some engineers, in particular at the senior-to-staff level, finding success faster than others. Here we share some top lessons sourced from the experience of our customers and ourselves.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/blockdiff",
+  "title": "Blockdiff: How we built our own file format for VM disk snapshots",
+  "published_on": "2025-06-23",
+  "summary": "How we built blockdiff, an open-source tool for rapid block-level diffs and snapshots of VM disks.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/dont-build-multi-agents",
+  "title": "Don’t Build Multi-Agents",
+  "published_on": "2025-06-12",
+  "summary": "Frameworks for LLM Agents have been surprisingly disappointing. I want to offer some principles for building agents based on our own trial & error, and explain why some tempting ideas are actually quite bad in practice.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/deepwiki-mcp-server",
+  "title": "The DeepWiki MCP Server",
+  "published_on": "2025-05-22",
+  "summary": "The DeepWiki MCP server is here. Get codebase context and answers about any public GitHub repository in seconds.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/open-source-initiative-is-back",
+  "title": "The Devin Open Source Initiative is Back",
+  "published_on": "2025-05-19",
+  "summary": "Open source code maintainers can now apply for free Devin ACUs.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-2-1",
+  "title": "Devin 2.1",
+  "published_on": "2025-05-15",
+  "summary": "We’re announcing some major changes in Devin 2.1. Devin now reports its confidence that it can complete tasks using 🟢 🟡 🔴 and is more likely to succeed in large codebases with better codebase context 🧠",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/kevin-32b",
+  "title": "Kevin-32B: Multi-Turn RL for Writing CUDA Kernels",
+  "published_on": "2025-05-06",
+  "summary": "We explore reinforcement learning in a multi-turn setting, using intermediate feedback from the environment, and masking model thoughts to avoid exploding context over multiple turns.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/deepwiki",
+  "title": "DeepWiki: AI docs for any repo",
+  "published_on": "2025-05-05",
+  "summary": "Turn any public GitHub repo into up-to-date documentation you can talk to, for free.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-2",
+  "title": "Devin 2.0",
+  "published_on": "2025-04-03",
+  "summary": "Introducing an agent-native IDE experience and a new Core plan starting at $20.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-february-25-product-update",
+  "title": "Devin February '25 Product Update",
+  "published_on": "2025-02-26",
+  "summary": "Devin is better at testing UI changes locally, can do batch (parallel) edits, and proactively gives you feedback on suboptimal prompts! We've also added support for GitLab, incorporated Sonnet 3.7 into Devin, and more.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/linktree",
+  "title": "Linktree expands social media platform coverage and ships new features with Devin",
+  "published_on": "2025-02-13",
+  "summary": "How Linktree ships new prototypes and support for new social media platforms with Devin, while skipping the lengthy prioritization process.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-101-automatic-pr-reviews-with-the-devin-api",
+  "title": "Devin 101: Automatic PR Reviews with the Devin API",
+  "published_on": "2025-01-21",
+  "summary": "How to set up a Github Actions workflow that uses the Devin API to review PRs",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/jan-25-product-update",
+  "title": "Devin January '25 Product Update",
+  "published_on": "2025-01-16",
+  "summary": "Introducing Devin 1.2! We’ve made major improvements to Devin’s ability to reason in context in a repository. We’ve also introduced voice messages to Devin, enterprise account management, easier usage-based billing, and more.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/crossmint-devin",
+  "title": "Scaling Open Source Development of GOAT with Devin: A Crossmint Case Study",
+  "published_on": "2025-01-14",
+  "summary": "How Crossmint is scaling Open Source Development of GOAT with Devin as part of the Devin Open Source Initiative",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/dec-24-product-update-2",
+  "title": "Devin December '24 Product Update (Part 2)",
+  "published_on": "2024-12-23",
+  "summary": "Over the last 2-3 weeks, we've made Devin faster, more cost-efficient, and more customizable. Issues that caused Devin to crash or get stuck have been fixed.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/cognition-open-source-initiative",
+  "title": "Announcing The Devin Open Source Initiative",
+  "published_on": "2024-12-12",
+  "summary": "OSS contributions Devin has already helped to make, and more about our Open Source Initiative.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-generally-available",
+  "title": "Devin is now generally available",
+  "published_on": "2024-12-10",
+  "summary": "The work Devin has been doing and how your team can start using Devin today.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/dec-24-product-update",
+  "title": "Devin December '24 Product Update",
+  "published_on": "2024-12-03",
+  "summary": "Work with Devin just as you would with human teammates, via Slack threads and PR review comments. Or, try handing Devin async tasks directly from your IDE. Devin now guides you through the onboarding it needs to be successful, better contributes to existing codebases, and is a faster, more reliable teammate.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/evaluating-coding-agents",
+  "title": "A review of OpenAI’s o1 and how we evaluate coding agents",
+  "published_on": "2024-09-12",
+  "summary": "Testing OpenAI’s newest o1 series of models with Devin for autonomous coding tasks",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/sept-24-product-update",
+  "title": "Devin September '24 Product Update",
+  "published_on": "2024-09-05",
+  "summary": "Devin is now faster, more accurate with code edits, more reliable at following your instructions, and better at independent decision making. We’ve also improved our support for enterprise security requirements and introduced new ways of working with Devin.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/devin-crowdstrike-outage",
+  "title": "Using Devin to Recover from the CrowdStrike Outage",
+  "published_on": "2024-07-20",
+  "summary": "A lot of businesses and critical systems were affected by the CrowdStrike outage yesterday, and we wanted to explore how Devin can help.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/june-24-product-update",
+  "title": "Devin June '24 Product Update",
+  "published_on": "2024-06-05",
+  "summary": "We’ve been working closely with a diverse range of companies and developers to make Devin a more collaborative, knowledgeable, and productive teammate. We’re excited to share some recent improvements here.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/swe-bench-technical-report",
+  "title": "SWE-bench technical report",
+  "published_on": "2024-03-15",
+  "summary": "One of our goals at Cognition is to enable Devin, an AI agent specializing in software development, to contribute code successfully to large, complex codebases.",
+  "retrieved_on": "2026-11-13"
+ },
+ {
+  "url": "https://cognition.ai/blog/introducing-devin",
+  "title": "Introducing Devin, the first AI software engineer",
+  "published_on": "2024-03-12",
+  "summary": "Setting a new state of the art on the SWE-bench coding benchmark. Meet Devin, the world’s first fully autonomous AI software engineer.",
+  "retrieved_on": "2026-11-13"
+ }
+]
