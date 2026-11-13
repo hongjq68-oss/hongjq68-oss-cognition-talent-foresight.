@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import clsx from "clsx";
 import { Check, X, RotateCcw, ExternalLink, Download, Info } from "lucide-react";
 import { api } from "../api";
@@ -147,7 +148,8 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
 
 export default function Candidates() {
   const { analysis: a, reload } = useApp();
-  const [sel, setSel] = useState<string>(a!.candidates[0]?.id);
+  const [params] = useSearchParams();
+  const [sel, setSel] = useState<string>(params.get("c") || a!.candidates[0]?.id);
   const [q, setQ] = useState("");
   const list = a!.candidates.filter((x) => !q || STATUS[x.status].label === q);
   const c = a!.candidates.find((x) => x.id === sel);

@@ -1,8 +1,43 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { Briefcase, Copy } from "lucide-react";
+import { Briefcase, Copy, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useApp } from "../state";
-import { Card, ClassBadge, EvidenceBadge, List, PageHeader, Tabs, Takeaway, useShowMore } from "../components/ui";
+import { Card, ClassBadge, EvidenceBadge, List, PageHeader, PoolBadge, Score, Tabs, Takeaway, useShowMore } from "../components/ui";
+import type { ShortlistEntry } from "../types";
+
+const STATUS_LABEL: Record<string, string> = { discovered: "Discovered", evidence_review: "In review", verified: "Verified", ready_for_ats: "Ready for ATS" };
+const tier = (v: number) => (v >= 65 ? "Strong" : v >= 45 ? "Possible" : "Stretch");
+
+function Shortlist({ items }: { items: ShortlistEntry[] }) {
+  if (!items.length) return <div className="text-sm text-slate-500">No candidate has evidence for this role yet. Use the search strings to find people.</div>;
+  return (
+    <div className="divide-y divide-slate-100">
+      {items.map((x, i) => (
+        <Link key={x.candidate_id} to={`/candidates?c=${x.candidate_id}`} className="flex items-center gap-3 py-2.5 hover:bg-slate-50">
+          <span className="w-4 text-xs text-slate-400">{i + 1}</span>
+          <Score value={x.score} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-slate-900">{x.display_name}</span>
+              <PoolBadge p={x.pool_type} />
+              <span className="text-xs text-slate-400">{x.market} · {tier(x.score)} fit</span>
+            </div>
+            <div className="mt-0.5 truncate text-xs text-slate-600">
+              <span className="text-emerald-700">✓ {x.strengths.join(" · ")}</span>
+              {x.gaps.length > 0 && <span className="ml-2 text-amber-700">• check {x.gaps.join(", ")}</span>}
+            </div>
+          </div>
+          <div className="shrink-0 text-right text-[11px] text-slate-500">
+            <div className="font-medium text-slate-700">{STATUS_LABEL[x.status] || x.status}</div>
+            <div>{x.verified_evidence} verified</div>
+          </div>
+          <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export default function Strategy() {
   const { analysis: a } = useApp();
@@ -27,13 +62,14 @@ export default function Strategy() {
           const ar = a!.archetypes.find((x) => x.id === s.archetype_id)!;
           return (
             <button key={s.archetype_id} onClick={() => setSel(s.archetype_id)} className={clsx("btn !py-1.5", sel === s.archetype_id ? "bg-ink-900 text-white" : "btn-secondary")}>
-              {ar.name} <span className="text-xs opacity-70">{ar.score.toFixed(0)}</span>
+              {ar.name} <span className="text-xs opacity-70">· {s.shortlist.length} matches</span>
             </button>
           );
         })}
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2" title={arch.name} subtitle={arch.summary}>
+        <div className="space-y-6 lg:col-span-2">
+        <Card title={arch.name} subtitle={arch.summary}>
 
           <Tabs value={tab} onChange={setTab} tabs={[{ id: "profile", label: "Profile" }, { id: "search", label: "How to search" }, { id: "where", label: "Where to look" }]} />
           <div className="mt-4">
@@ -77,6 +113,10 @@ export default function Strategy() {
             )}
           </div>
         </Card>
+          <Card title={`Auto-shortlist (${st.shortlist.length})`} subtitle="Top matches by evidence of what they built. Suggestions only; a recruiter verifies before anyone is contacted." right={<EvidenceBadge c="recommendation" />}>
+            <Shortlist items={st.shortlist} />
+          </Card>
+        </div>
         <div className="space-y-6">
           <Card title="Open Cognition roles" right={<EvidenceBadge c="verified_fact" />}>
             {arch.open_roles.length === 0 ? <div className="text-xs text-slate-500">No open role yet. Build the pipeline early.</div> :

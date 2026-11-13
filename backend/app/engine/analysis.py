@@ -16,6 +16,9 @@ def run(kb: KB, conn, scenario_id: str | None, overrides: dict | None = None, to
     cap_pools = {c["id"]: pools.pools_for_capability(kb, c["id"], sc) for c in caps[:15]}
     strategies = [pools.search_strategy(kb, a, sc, caps) for a in archetypes[:6]]
     shortlist = cand_engine.shortlist(kb, conn, sc, caps, archetypes, problems)
+    role_lists = cand_engine.role_shortlists(kb, conn, sc, caps, [s["archetype_id"] for s in strategies])
+    for s in strategies:
+        s["shortlist"] = role_lists[s["archetype_id"]]
     return {"scenario": sc, "radar": radar, "problems": problems, "capabilities": caps, "archetypes": archetypes,
             "ecosystem": ecosystem, "capability_pools": cap_pools, "strategies": strategies, "candidates": shortlist,
             "segments": {k: v for k, v in kb.segments.items() if sc["segment_weights"].get(k, 0) > 0}}

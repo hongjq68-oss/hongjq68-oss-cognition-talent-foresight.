@@ -130,3 +130,15 @@ def test_report_has_eleven_tagged_sections(conn):
             assert it["evidence_class"] in r["evidence_labels"]
     md = report.to_markdown(r)
     assert "## 11. Recommended next actions for the recruiter" in md and "https://cognition.ai/blog/" in md
+
+
+def test_role_shortlists_are_evidence_backed(conn):
+    ce.set_status(conn, "c-sg-01", "parked", "t")
+    r = run(conn)
+    for s in r["strategies"]:
+        sl = s["shortlist"]
+        assert len(sl) <= ce.SHORTLIST_SIZE
+        assert [x["score"] for x in sl] == sorted((x["score"] for x in sl), reverse=True)
+        assert all(x["strengths"] for x in sl)
+        assert "c-sg-01" not in {x["candidate_id"] for x in sl}
+    assert any(s["shortlist"] for s in r["strategies"])

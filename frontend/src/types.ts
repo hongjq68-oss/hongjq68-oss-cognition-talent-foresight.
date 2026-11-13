@@ -51,6 +51,12 @@ export interface Archetype {
 export interface Strategy {
   archetype_id: string; focus_capabilities: string[]; evidence_to_look_for: string[];
   queries: { source: string; query: string; note: string }[]; target_organisations: string[]; avoid: string[];
+  shortlist: ShortlistEntry[];
+}
+
+export interface ShortlistEntry {
+  candidate_id: string; display_name: string; headline: string; market: string; pool_type: PoolType; status: string;
+  score: number; strengths: string[]; gaps: string[]; verified_evidence: number;
 }
 
 export interface Evidence {

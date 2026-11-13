@@ -92,6 +92,32 @@ def shortlist(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list
     return sorted(out, key=lambda x: -x["best_fit"]["score"])
 
 
+SHORTLIST_SIZE = 8
+
+
+def role_shortlists(kb: KB, conn, sc: dict, capabilities: list[dict], archetype_ids: list[str],
+                    size: int = SHORTLIST_SIZE) -> dict[str, list[dict]]:
+    """Per role profile: the strongest evidence-backed candidates. Suggestions only; recruiters decide."""
+    demand = {c["id"]: c["peak"] for c in capabilities}
+    cands = [c for c in load_candidates(conn) if c["status"] != "parked"]
+    out = {}
+    for aid in archetype_ids:
+        rows = []
+        for cand in cands:
+            f = fit(kb, cand, kb.archetypes[aid], sc, demand)
+            if f["evidence_fit"] <= 0:
+                continue
+            rows.append({
+                "candidate_id": cand["id"], "display_name": cand["display_name"], "headline": cand["headline"],
+                "market": cand["market"], "pool_type": cand["pool_type"], "status": cand["status"],
+                "score": f["score"], "strengths": [d["name"] for d in f["demonstrated"][:3]],
+                "gaps": [g["name"] for g in f["gaps"][:2]],
+                "verified_evidence": sum(1 for e in cand["evidence"] if e["verification"] == "verified"),
+            })
+        out[aid] = sorted(rows, key=lambda r: -r["score"])[:size]
+    return out
+
+
 def candidate_view(c: dict) -> dict:
     return {k: c[k] for k in ("id", "display_name", "synthetic", "headline", "employer_descriptor", "pool_type", "market",
                               "background", "learning_needs", "status", "notes", "evidence")}
