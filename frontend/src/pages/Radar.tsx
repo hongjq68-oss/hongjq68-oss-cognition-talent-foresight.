@@ -1,72 +1,70 @@
 import { Briefcase } from "lucide-react";
 import { useApp } from "../state";
-import { Card, Cite, EvidenceBadge, MARKET_NAMES, PageHeader, Stat, List } from "../components/ui";
+import { Card, Cite, Details, EvidenceBadge, MARKET_NAMES, PageHeader, Stat, List, Takeaway, useShowMore } from "../components/ui";
 import type { Signal } from "../types";
 
 function SignalRow({ s }: { s: Signal }) {
   return (
-    <div className="border-b border-slate-100 py-3 last:border-0">
-      <div className="flex items-center gap-2">
+    <div className="border-b border-slate-100 py-2.5 last:border-0">
+      <div className="flex items-start gap-2">
+        <div className="min-w-0 flex-1 text-sm font-medium text-slate-900">{s.title}</div>
+        <span className="shrink-0 text-xs text-slate-400">{s.date || "undated"}</span>
+      </div>
+      <div className="mt-1 flex flex-wrap items-center gap-2">
         <span className="chip bg-slate-100 text-slate-600 capitalize">{s.kind}</span>
         <EvidenceBadge c={s.evidence_class} />
-        <span className="ml-auto text-xs text-slate-400">{s.date || "undated"}</span>
+        <Details label="Summary"><p className="text-sm text-slate-600">{s.summary}</p><div className="mt-1"><Cite c={s} /></div></Details>
       </div>
-      <div className="mt-1.5 text-sm font-medium text-slate-900">{s.title}</div>
-      <p className="mt-0.5 text-sm text-slate-600">{s.summary}</p>
-      <div className="mt-1"><Cite c={s} /></div>
     </div>
   );
 }
 
 export default function Radar() {
   const { analysis: a } = useApp();
-  if (!a) return null;
-  const h = a.radar.hiring;
-  const sc = a.scenario;
+  const h = a!.radar.hiring;
+  const sc = a!.scenario;
+  const [drivers, moreDrivers] = useShowMore(a!.radar.drivers, 8);
+  const [related, moreRelated] = useShowMore(a!.radar.related, 4);
+  const roles = Object.values(h.by_archetype).flat().filter((r, i, arr) => arr.findIndex((x) => x.url === r.url) === i);
+  const [shownRoles, moreRoles] = useShowMore(roles, 5);
+  const topMarkets = Object.entries(sc.market_weights).sort((x, y) => y[1] - x[1]).filter(([, w]) => w > 0).slice(0, 3).map(([m]) => MARKET_NAMES[m] || m);
   return (
-    <div className="space-y-6">
-      <PageHeader letter="A" title="Business Growth Radar" question="Where is Cognition going, and what evidence says so?" />
-      <Card title={sc.name} subtitle="Scenario hypothesis — a planning assumption, not a statement of Cognition's plans" right={<EvidenceBadge c="hypothesis" />}>
-        <p className="text-sm text-slate-700">{sc.hypothesis}</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <div><div className="label">What would change in the business</div><List items={sc.business_changes} /></div>
-          <div><div className="label">Market weighting</div>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(sc.market_weights).sort((x, y) => y[1] - x[1]).map(([m, w]) => (
-                <span key={m} className="chip bg-brand-50 text-brand-700">{MARKET_NAMES[m] || m} · {w}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Card>
-      <div className="grid gap-4 md:grid-cols-4">
-        <Stat label="Driving public signals" value={a.radar.drivers.length} hint="Dated, linked Cognition sources" />
-        <Stat label="Open Cognition roles (all)" value={h.total_open_roles} hint={`Ashby, retrieved ${h.source.date}`} />
-        <Stat label="Open roles in scenario markets" value={h.in_scenario_markets} hint={Object.entries(h.by_market).map(([m, n]) => `${m} ${n}`).join(" · ")} />
-        <Stat label="Archetypes Cognition is already hiring" value={Object.keys(h.by_archetype).length} hint="Hiring signal → demand now" />
+    <div className="space-y-5">
+      <PageHeader letter="A" title="Growth Radar" question="Where is Cognition heading, and what's the evidence?" />
+      <Takeaway title={`${a!.radar.drivers.length} public signals point to growth in ${topMarkets.join(", ")}.`}>
+        Cognition already has {h.in_scenario_markets} open roles in these markets. Scenario: {sc.name} <span className="text-slate-400">(a hypothesis, not a stated plan)</span>
+      </Takeaway>
+      <div className="grid gap-3 md:grid-cols-4">
+        <Stat label="Supporting signals" value={a!.radar.drivers.length} />
+        <Stat label="Open roles (all)" value={h.total_open_roles} />
+        <Stat label="Open roles in focus markets" value={h.in_scenario_markets} />
+        <Stat label="Role types already hiring" value={Object.keys(h.by_archetype).length} />
       </div>
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2" title="Signals driving this scenario" subtitle="Products, customers, partnerships, expansion, funding — paraphrased from the linked source">
-          {a.radar.drivers.map((s) => <SignalRow key={s.id} s={s} />)}
+      <div className="grid gap-5 lg:grid-cols-3">
+        <Card className="lg:col-span-2" title="Signals behind this scenario" right={<Details label="What would change"><List items={sc.business_changes} /></Details>}>
+          {drivers.map((s) => <SignalRow key={s.id} s={s} />)}
+          {moreDrivers}
         </Card>
-        <div className="space-y-6">
-          <Card title="Hiring signals" subtitle="Cognition's public job board, scenario markets" right={<EvidenceBadge c="verified_fact" />}>
-            <div className="space-y-1.5 text-sm">
-              {Object.entries(h.by_department).sort((x, y) => y[1] - x[1]).map(([d, n]) => (
+        <div className="space-y-5">
+          <Card title="Open roles in focus markets" right={<EvidenceBadge c="verified_fact" />}>
+            <div className="space-y-1 text-sm">
+              {Object.entries(h.by_department).sort((x, y) => y[1] - x[1]).slice(0, 5).map(([d, n]) => (
                 <div key={d} className="flex justify-between"><span className="text-slate-600">{d}</span><span className="font-medium">{n}</span></div>
               ))}
             </div>
-            <div className="mt-4 space-y-1">
-              {Object.values(h.by_archetype).flat().filter((r, i, arr) => arr.findIndex((x) => x.url === r.url) === i).slice(0, 12).map((r) => (
+            <div className="mt-3 space-y-1">
+              {shownRoles.map((r) => (
                 <a key={r.url} href={r.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-brand-700 hover:underline">
-                  <Briefcase className="h-3 w-3" /> {r.title} <span className="text-slate-400">· {r.market}</span>
+                  <Briefcase className="h-3 w-3 shrink-0" /> <span className="truncate">{r.title}</span> <span className="text-slate-400">· {r.market}</span>
                 </a>
               ))}
+              {moreRoles}
             </div>
             <div className="mt-3"><Cite c={h.source} /></div>
           </Card>
-          <Card title="Related signals" subtitle="Same segments & markets">
-            <div className="max-h-[28rem] overflow-y-auto pr-1">{a.radar.related.map((s) => <SignalRow key={s.id} s={s} />)}</div>
+          <Card title="Related signals">
+            {related.map((s) => <SignalRow key={s.id} s={s} />)}
+            {moreRelated}
           </Card>
         </div>
       </div>

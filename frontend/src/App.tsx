@@ -15,11 +15,11 @@ import ReportPage from "./pages/Report";
 import Architecture from "./pages/Architecture";
 
 const NAV = [
-  { to: "/radar", label: "Business Growth Radar", icon: Radar, letter: "A" },
-  { to: "/customers", label: "Customer Opportunity", icon: Building2, letter: "B" },
+  { to: "/radar", label: "Growth Radar", icon: Radar, letter: "A" },
+  { to: "/customers", label: "Customer Problems", icon: Building2, letter: "B" },
   { to: "/forecast", label: "Capability Forecast", icon: LineChart, letter: "C" },
-  { to: "/ecosystem", label: "Talent Ecosystem Map", icon: Network, letter: "D" },
-  { to: "/candidates", label: "Candidate Discovery", icon: Users, letter: "E" },
+  { to: "/ecosystem", label: "Talent Map", icon: Network, letter: "D" },
+  { to: "/candidates", label: "Candidates", icon: Users, letter: "E" },
   { to: "/strategy", label: "Hiring Strategy", icon: Compass, letter: "F" },
 ];
 const NAV2 = [

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { ExternalLink, AlertTriangle } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { Citation, EvidenceClass, Classification, PoolType } from "../types";
 
 export const EVIDENCE: Record<EvidenceClass, { label: string; cls: string }> = {
@@ -127,4 +127,54 @@ export function List({ items, className }: { items: string[]; className?: string
       ))}
     </ul>
   );
+}
+
+export function Takeaway({ title, children }: { title: ReactNode; children?: ReactNode }) {
+  return (
+    <div className="rounded-xl bg-ink-900 px-5 py-4 text-white">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Key takeaway</div>
+      <div className="mt-1 text-lg font-semibold leading-snug">{title}</div>
+      {children && <div className="mt-2 text-sm text-slate-300">{children}</div>}
+    </div>
+  );
+}
+
+export function Details({ label = "Show details", children, className }: { label?: string; children: ReactNode; className?: string }) {
+  return (
+    <details className={clsx("group", className)}>
+      <summary className="cursor-pointer select-none list-none text-xs font-medium text-brand-700 hover:underline">
+        <span className="group-open:hidden">{label} ▸</span><span className="hidden group-open:inline">Hide ▾</span>
+      </summary>
+      <div className="mt-2">{children}</div>
+    </details>
+  );
+}
+
+export function useShowMore<T>(items: T[], n = 5) {
+  const [all, setAll] = useState(false);
+  const shown = all ? items : items.slice(0, n);
+  const toggle = items.length > n ? (
+    <button className="mt-2 text-xs font-medium text-brand-700 hover:underline" onClick={() => setAll(!all)}>
+      {all ? "Show less" : `Show all ${items.length}`}
+    </button>
+  ) : null;
+  return [shown, toggle] as const;
+}
+
+export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: ReactNode }[]; value: T; onChange: (t: T) => void }) {
+  return (
+    <div className="flex gap-1 border-b border-slate-200">
+      {tabs.map((t) => (
+        <button key={t.id} onClick={() => onChange(t.id)}
+          className={clsx("-mb-px border-b-2 px-3 py-2 text-sm font-medium", value === t.id ? "border-brand-600 text-brand-700" : "border-transparent text-slate-500 hover:text-slate-800")}>
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function Score({ value, size = "md" }: { value: number; size?: "md" | "lg" }) {
+  const tone = value >= 65 ? "text-emerald-700 bg-emerald-50 ring-emerald-200" : value >= 45 ? "text-amber-700 bg-amber-50 ring-amber-200" : "text-slate-600 bg-slate-50 ring-slate-200";
+  return <span className={clsx("inline-grid place-items-center rounded-full font-semibold ring-1 ring-inset", tone, size === "lg" ? "h-14 w-14 text-xl" : "h-9 w-9 text-sm")}>{Math.round(value)}</span>;
 }

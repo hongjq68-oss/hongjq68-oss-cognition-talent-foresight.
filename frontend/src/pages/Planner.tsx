@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../state";
 import { api } from "../api";
-import { Card, ClassBadge, EvidenceBadge, List, MARKET_NAMES, PageHeader } from "../components/ui";
+import { Card, ClassBadge, Details, EvidenceBadge, List, MARKET_NAMES, PageHeader, Takeaway } from "../components/ui";
 import type { Analysis } from "../types";
 
 function Slider({ label, value, onChange, max = 1, step = 0.05 }: { label: string; value: number; onChange: (v: number) => void; max?: number; step?: number }) {
@@ -35,13 +35,15 @@ export default function Planner() {
 
   const apply = () => setOverrides({ scenario_id: overrides.scenario_id, name: name === base.name ? `${base.name} (adjusted)` : name, segment_weights: segW, market_weights: mktW });
   const b = Object.fromEntries((baseline?.capabilities || []).map((c) => [c.id, c]));
-  const deltas = a!.capabilities.map((c) => ({ c, d: c.peak - (b[c.id]?.peak ?? 0), was: b[c.id]?.classification })).sort((x, y) => Math.abs(y.d) - Math.abs(x.d)).slice(0, 12);
+  const deltas = a!.capabilities.map((c) => ({ c, d: c.peak - (b[c.id]?.peak ?? 0), was: b[c.id]?.classification })).filter((x) => Math.abs(x.d) > 0.5 || (x.was && x.was !== x.c.classification)).sort((x, y) => Math.abs(y.d) - Math.abs(x.d)).slice(0, 10);
+  const up = deltas.filter((x) => x.d > 0.5).length, down = deltas.filter((x) => x.d < -0.5).length;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Scenario Planner" question="If this happens, how does the talent requirement change?"><EvidenceBadge c="hypothesis" /></PageHeader>
+    <div className="space-y-5">
+      <PageHeader title="Scenario Planner" question="Move the sliders to see how hiring needs change."><EvidenceBadge c="hypothesis" /></PageHeader>
+      <Takeaway title={deltas.length ? `Your changes move ${deltas.length} capabilities: ${up} up, ${down} down.` : "No changes yet. Adjust the sliders, then click Recompute."} />
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card title="Adjust the scenario" subtitle="Start from a preset (header), then reweight segments and markets">
+        <Card title="Adjust the scenario" subtitle="0 = ignore · 1 = full focus">
           <label className="label">Scenario name</label>
           <input className="input mb-4" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="label">Customer segments</div>
@@ -52,16 +54,18 @@ export default function Planner() {
         </Card>
         <div className="space-y-6 lg:col-span-2">
           <Card title={a!.scenario.name} subtitle={a!.scenario.hypothesis}>
+            <Details label="Risks, alternatives and assumptions">
             <div className="grid gap-4 md:grid-cols-3">
               <div><div className="label">Business changes</div><List items={a!.scenario.business_changes} /></div>
               <div><div className="label">What could derail it</div><List items={a!.scenario.derailers} /></div>
               <div><div className="label">Alternative talent strategies</div><List items={a!.scenario.alternatives} /></div>
             </div>
             {a!.scenario.assumptions.length > 0 && <div className="mt-4"><div className="label">Assumptions</div><List items={a!.scenario.assumptions} /></div>}
+            </Details>
           </Card>
-          <Card title="Change vs preset baseline" subtitle="Peak demand difference after your adjustments (0 when nothing has been adjusted)">
-            <table className="w-full text-sm">
-              <thead><tr className="text-left text-xs text-slate-500"><th className="py-1">Capability</th><th>Peak</th><th>Δ</th><th>Classification</th><th>Start search by</th></tr></thead>
+          <Card title="What changed vs the preset">
+            {deltas.length === 0 ? <div className="text-sm text-slate-500">Nothing yet.</div> : <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-slate-500"><th className="py-1">Capability</th><th>Demand</th><th>Change</th><th>Forecast</th><th>Start search</th></tr></thead>
               <tbody>
                 {deltas.map(({ c, d, was }) => (
                   <tr key={c.id} className="border-t border-slate-100">
@@ -72,7 +76,7 @@ export default function Planner() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table>}
           </Card>
         </div>
       </div>
