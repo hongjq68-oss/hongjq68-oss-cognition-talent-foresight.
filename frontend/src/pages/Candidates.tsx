@@ -21,7 +21,12 @@ const ETYPE: Record<string, string> = {
 function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
   const [err, setErr] = useState<string | null>(null);
   const act = async (fn: () => Promise<unknown>) => {
-    try { await fn(); setErr(null); onChange(); } catch (e) { setErr(String((e as Error).message)); }
+    try {
+      const r = (await fn()) as { candidate_status?: string };
+      const revoked = r?.candidate_status && c.status !== "discovered" && r.candidate_status !== c.status;
+      setErr(revoked ? `Status moved back to ${STATUS[r.candidate_status!].label}: the evidence no longer meets the ${STATUS[c.status].label} requirements.` : null);
+      onChange();
+    } catch (e) { setErr(String((e as Error).message)); }
   };
   const f = c.best_fit;
   return (
@@ -119,7 +124,7 @@ export default function Candidates() {
             ))}
           </div>
         </Card>
-        <Card className="lg:col-span-3">{c ? <Detail c={c} onChange={reload} /> : <div className="text-sm text-slate-500">Select a profile</div>}</Card>
+        <Card className="lg:col-span-3">{c ? <Detail key={c.id} c={c} onChange={reload} /> : <div className="text-sm text-slate-500">Select a profile</div>}</Card>
       </div>
     </div>
   );

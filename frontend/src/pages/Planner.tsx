@@ -26,7 +26,7 @@ export default function Planner() {
     setMktW(Object.fromEntries(meta!.markets.map((m) => [m, base.market_weights[m] || 0])));
     setName(base.name);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [base.id]);
+  }, [base]);
 
   useEffect(() => {
     const id = overrides.scenario_id;

@@ -105,6 +105,18 @@ def audit(conn, actor: str, action: str, detail: str) -> None:
     conn.execute("INSERT INTO audit_log (at, actor, action, detail) VALUES (?,?,?,?)", (_now(), actor, action, detail))
 
 
+def gate_error(conn, candidate_id: str, status: str) -> str | None:
+    if status not in ("verified", "ready_for_ats"):
+        return None
+    rows = conn.execute("SELECT verification FROM candidate_evidence WHERE candidate_id=?", (candidate_id,)).fetchall()
+    n = sum(1 for r in rows if r["verification"] == "verified")
+    if n < MIN_VERIFIED_FOR_VERIFIED:
+        return f"At least {MIN_VERIFIED_FOR_VERIFIED} pieces of evidence must be recruiter-verified (has {n})"
+    if status == "ready_for_ats" and any(r["verification"] == "unverified" for r in rows):
+        return "Review every evidence item (verify or reject) before handing to the ATS"
+    return None
+
+
 def review_evidence(conn, evidence_id: str, decision: str, reviewer: str, note: str | None = None) -> dict:
     if decision not in ("verified", "rejected", "unverified"):
         raise ValueError("decision must be verified, rejected or unverified")
@@ -115,10 +127,20 @@ def review_evidence(conn, evidence_id: str, decision: str, reviewer: str, note: 
     conn.execute("INSERT INTO evidence_reviews (evidence_id, decision, note, reviewer, reviewed_at) VALUES (?,?,?,?,?)",
                  (evidence_id, decision, note, reviewer, _now()))
     audit(conn, reviewer, "evidence_review", f"{evidence_id} -> {decision}")
-    cand = conn.execute("SELECT status FROM candidates WHERE id=?", (ev["candidate_id"],)).fetchone()
-    if cand["status"] == "discovered":
-        conn.execute("UPDATE candidates SET status='evidence_review' WHERE id=?", (ev["candidate_id"],))
-    return {"evidence_id": evidence_id, "verification": decision}
+    cid = ev["candidate_id"]
+    status = conn.execute("SELECT status FROM candidates WHERE id=?", (cid,)).fetchone()["status"]
+    new = status
+    if status == "discovered":
+        new = "evidence_review"
+    elif status == "ready_for_ats" and gate_error(conn, cid, "ready_for_ats"):
+        new = "verified" if not gate_error(conn, cid, "verified") else "evidence_review"
+    elif status == "verified" and gate_error(conn, cid, "verified"):
+        new = "evidence_review"
+    if new != status:
+        conn.execute("UPDATE candidates SET status=? WHERE id=?", (new, cid))
+        if status != "discovered":
+            audit(conn, "system", "status_revoked", f"{cid}: {status} -> {new} (evidence {evidence_id} -> {decision})")
+    return {"evidence_id": evidence_id, "verification": decision, "candidate_status": new}
 
 
 def set_status(conn, candidate_id: str, status: str, actor: str, note: str | None = None) -> dict:
@@ -127,13 +149,9 @@ def set_status(conn, candidate_id: str, status: str, actor: str, note: str | Non
         raise KeyError(candidate_id)
     if status not in TRANSITIONS.get(c["status"], set()):
         raise ValueError(f"Cannot move from {c['status']} to {status}")
-    if status in ("verified", "ready_for_ats"):
-        rows = conn.execute("SELECT verification FROM candidate_evidence WHERE candidate_id=?", (candidate_id,)).fetchall()
-        n = sum(1 for r in rows if r["verification"] == "verified")
-        if n < MIN_VERIFIED_FOR_VERIFIED:
-            raise ValueError(f"At least {MIN_VERIFIED_FOR_VERIFIED} pieces of evidence must be recruiter-verified (has {n})")
-        if any(r["verification"] == "unverified" for r in rows) and status == "ready_for_ats":
-            raise ValueError("Review every evidence item (verify or reject) before handing to the ATS")
+    err = gate_error(conn, candidate_id, status)
+    if err:
+        raise ValueError(err)
     conn.execute("UPDATE candidates SET status=?, notes=COALESCE(?, notes) WHERE id=?", (status, note, candidate_id))
     audit(conn, actor, "status_change", f"{candidate_id}: {c['status']} -> {status}")
     return {"candidate_id": candidate_id, "status": status}
@@ -143,7 +161,7 @@ def ats_export(conn) -> list[dict]:
     """Only recruiter-approved candidates and only their verified evidence leave the system."""
     out = []
     for c in load_candidates(conn):
-        if c["status"] != "ready_for_ats":
+        if c["status"] != "ready_for_ats" or gate_error(conn, c["id"], "ready_for_ats"):
             continue
         out.append({"name": c["display_name"], "synthetic": bool(c["synthetic"]), "headline": c["headline"],
                     "market": c["market"], "background": c["background"], "notes": c["notes"],

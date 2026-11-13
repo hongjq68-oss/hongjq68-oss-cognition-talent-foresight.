@@ -98,6 +98,24 @@ def test_status_workflow_gates(conn):
     assert conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0] >= 5
 
 
+def _status(conn, cid):
+    return conn.execute("SELECT status FROM candidates WHERE id=?", (cid,)).fetchone()["status"]
+
+
+def test_unreviewing_evidence_revokes_approval(conn):
+    ce.set_status(conn, "c-sg-01", "evidence_review", "t")
+    ce.review_evidence(conn, "c-sg-01-e2", "verified", "t")
+    ce.review_evidence(conn, "c-sg-01-e3", "rejected", "t")
+    ce.set_status(conn, "c-sg-01", "verified", "t")
+    ce.set_status(conn, "c-sg-01", "ready_for_ats", "t")
+    r = ce.review_evidence(conn, "c-sg-01-e3", "unverified", "t")  # still 2 verified, one unreviewed
+    assert r["candidate_status"] == "verified" == _status(conn, "c-sg-01")
+    assert ce.ats_export(conn) == []
+    ce.review_evidence(conn, "c-sg-01-e2", "unverified", "t")  # drops below 2 verified
+    assert _status(conn, "c-sg-01") == "evidence_review"
+    assert conn.execute("SELECT COUNT(*) FROM audit_log WHERE action='status_revoked'").fetchone()[0] == 2
+
+
 def test_candidates_have_explanations(conn):
     for c in run(conn)["candidates"]:
         assert c["transferability"] and c["validation_questions"]
