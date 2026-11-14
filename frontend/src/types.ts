@@ -68,12 +68,18 @@ export interface Fit {
   demonstrated: { id: string; name: string; strength: number; evidence_id: string }[];
   gaps: { id: string; name: string; weight: number }[];
 }
-export interface OpenRoleFit { archetype_id: string; archetype: string; score: number; roles: Role[] }
+export interface BestJob { job_id: string; title: string; url: string; market: string; score: number }
+export interface OpenJob {
+  id: string; title: string; department: string | null; location: string; market: string; url: string;
+  published_on: string | null; retrieved_on: string | null; regional: boolean; scenario_market_weight: number;
+  profile: { id: string; name: string; basis: "role_profile" | "inferred" } | null; note: string | null;
+  matches: { candidate_id: string; score: number; strengths: string[] }[];
+}
 
 export interface Candidate {
   id: string; display_name: string; synthetic: number; headline: string; employer_descriptor: string; profile_url: string | null;
   pool_type: PoolType; market: string; background: string; learning_needs: string[]; status: string; notes: string; evidence: Evidence[];
-  best_fit: Fit; open_role_fit: OpenRoleFit | null; alternative_fits: { archetype: string; score: number }[]; transferability: string;
+  best_fit: Fit; best_job: BestJob | null; alternative_fits: { archetype: string; score: number }[]; transferability: string;
   validation_questions: string[]; missing_information: string[];
 }
 
@@ -83,7 +89,7 @@ export interface Analysis {
   scenario: Scenario; radar: { drivers: Signal[]; related: Signal[]; hiring: Hiring }; problems: Problem[];
   capabilities: Capability[]; archetypes: Archetype[]; ecosystem: PoolGroup[];
   capability_pools: Record<string, Record<PoolType, { label: string; organisations: Org[] }>>;
-  strategies: Strategy[]; candidates: Candidate[]; segments: Record<string, Segment>;
+  strategies: Strategy[]; candidates: Candidate[]; open_jobs: OpenJob[]; segments: Record<string, Segment>;
 }
 
 export interface Meta {

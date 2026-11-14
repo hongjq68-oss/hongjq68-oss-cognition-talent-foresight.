@@ -19,6 +19,11 @@ def run(kb: KB, conn, scenario_id: str | None, overrides: dict | None = None, to
     role_lists = cand_engine.role_shortlists(kb, conn, sc, caps, [s["archetype_id"] for s in strategies])
     for s in strategies:
         s["shortlist"] = role_lists[s["archetype_id"]]
+    jobs = cand_engine.open_jobs(kb, conn, sc, caps)
+    best = cand_engine.best_jobs(jobs)
+    for c in shortlist:
+        c["best_job"] = best.get(c["id"])
     return {"scenario": sc, "radar": radar, "problems": problems, "capabilities": caps, "archetypes": archetypes,
             "ecosystem": ecosystem, "capability_pools": cap_pools, "strategies": strategies, "candidates": shortlist,
+            "open_jobs": jobs,
             "segments": {k: v for k, v in kb.segments.items() if sc["segment_weights"].get(k, 0) > 0}}

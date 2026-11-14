@@ -79,13 +79,12 @@ def transferability(kb: KB, cand: dict, f: dict, problems: list[dict]) -> str:
 
 def shortlist(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list[dict], problems: list[dict]) -> list[dict]:
     demand = {c["id"]: c["peak"] for c in capabilities}
-    hiring = [a for a in archetypes if a["open_roles"]]
     out = []
     for cand in load_candidates(conn):
         fits = sorted((fit(kb, cand, kb.archetypes[a["id"]], sc, demand) for a in archetypes[:8]), key=lambda x: -x["score"])
         best = fits[0]
         out.append(candidate_view(cand) | {
-            "best_fit": best, "open_role_fit": open_role_fit(kb, cand, hiring, sc, demand), "alternative_fits": [{"archetype": x["archetype"], "score": x["score"]} for x in fits[1:3]],
+            "best_fit": best, "alternative_fits": [{"archetype": x["archetype"], "score": x["score"]} for x in fits[1:3]],
             "transferability": transferability(kb, cand, best, problems),
             "validation_questions": validation_questions(kb, cand, best),
             "missing_information": [g["name"] for g in best["gaps"]],
@@ -94,14 +93,73 @@ def shortlist(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list
     return sorted(out, key=lambda x: -x["best_fit"]["score"])
 
 
-def open_role_fit(kb: KB, cand: dict, hiring: list[dict], sc: dict, demand: dict) -> dict | None:
-    """Best match among role profiles Cognition is advertising now; None without relevant evidence."""
-    fits = [(fit(kb, cand, kb.archetypes[a["id"]], sc, demand), a) for a in hiring]
-    fits = [x for x in fits if x[0]["evidence_fit"] > 0]
-    if not fits:
-        return None
-    f, a = max(fits, key=lambda x: x[0]["score"])
-    return {"archetype_id": a["id"], "archetype": a["name"], "score": f["score"], "roles": a["open_roles"]}
+SHORTLIST_SIZE = 8
+
+# Postings no curated role profile covers; capability ids come from the capability model.
+INFERRED_PROFILES = [
+    ("QA Engineer", "QA & test-automation engineer",
+     {"qa_test_automation": 1.0, "software_engineering": 0.7, "systems_integration": 0.5}),
+    ("Partner Marketing", "Partner marketing",
+     {"partner_development": 1.0, "commercialising_tech": 0.8, "japanese_enterprise": 0.6}),
+]
+UNSCORED_KEYWORDS = {"Recruit": "Recruiting role: outside the capability model, so candidates are not scored."}
+MARKET_IN_KEYWORD = re.compile(r"Japan|Singapore|Korea|India|Australia|ANZ|APAC", re.I)
+REGIONAL_TITLE = re.compile(r"\b(APAC|APJ|ANZ)\b")
+
+
+def job_profile(kb: KB, job: dict) -> dict | None:
+    title = job["title"].lower()
+    # A keyword naming the market ("Engineer - Japan") is more specific than a generic job family.
+    hits = [(bool(MARKET_IN_KEYWORD.search(k)), len(k), -i, a) for i, a in enumerate(kb.archetypes.values())
+            for k in a["posting_keywords"] if k.lower() in title]
+    if hits:
+        a = max(hits, key=lambda h: h[:3])[3]
+        return {"id": a["id"], "name": a["name"], "capability_weights": a["capability_weights"], "basis": "role_profile"}
+    for kw, name, weights in INFERRED_PROFILES:
+        if kw.lower() in title:
+            return {"id": f"inferred:{kw}", "name": name, "capability_weights": weights, "basis": "inferred"}
+    return None
+
+
+def open_jobs(kb: KB, conn, sc: dict, capabilities: list[dict], size: int = SHORTLIST_SIZE) -> list[dict]:
+    """Every live APAC Cognition posting with the candidates whose evidence best fits it. Suggestions only."""
+    demand = {c["id"]: c["peak"] for c in capabilities}
+    cands = [c for c in load_candidates(conn) if c["status"] != "parked"]
+    out = []
+    for j in kb.jobs:
+        if not j["market"]:
+            continue
+        prof = job_profile(kb, j)
+        regional = bool(REGIONAL_TITLE.search(j["title"]))
+        job_sc = sc | {"market_weights": {m: 1.0 if m == j["market"] else (0.7 if regional else 0.3)
+                                          for m in ("SG", "JP", "AU", "IN", "KR")}}
+        matches = []
+        for cand in cands if prof else []:
+            f = fit(kb, cand, prof, job_sc, demand)
+            if f["evidence_fit"] <= 0:
+                continue
+            matches.append({"candidate_id": cand["id"], "score": f["score"],
+                            "strengths": [d["name"] for d in f["demonstrated"][:3]]})
+        note = next((v for k, v in UNSCORED_KEYWORDS.items() if k.lower() in j["title"].lower()), None)
+        out.append({
+            "id": j["id"], "title": j["title"], "department": j["department"], "location": j["location"],
+            "market": j["market"], "url": j["url"], "published_on": j["published_on"], "retrieved_on": j["retrieved_on"],
+            "regional": regional, "scenario_market_weight": sc["market_weights"].get(j["market"], 0),
+            "profile": {k: prof[k] for k in ("id", "name", "basis")} if prof else None,
+            "note": note if not prof else None,
+            "matches": sorted(matches, key=lambda m: -m["score"])[:size],
+        })
+    return sorted(out, key=lambda x: (-x["scenario_market_weight"], -(x["matches"][0]["score"] if x["matches"] else -1), x["title"]))
+
+
+def best_jobs(jobs: list[dict]) -> dict[str, dict]:
+    best: dict[str, dict] = {}
+    for j in jobs:
+        for m in j["matches"]:
+            if m["score"] > best.get(m["candidate_id"], {}).get("score", -1):
+                best[m["candidate_id"]] = {"job_id": j["id"], "title": j["title"], "url": j["url"],
+                                           "market": j["market"], "score": m["score"]}
+    return best
 
 
 def set_profile(conn, candidate_id: str, profile_url: str | None, actor: str) -> dict:
@@ -113,9 +171,6 @@ def set_profile(conn, candidate_id: str, profile_url: str | None, actor: str) ->
     conn.execute("UPDATE candidates SET profile_url=? WHERE id=?", (url, candidate_id))
     audit(conn, actor, "profile_link", f"{candidate_id}: {url or 'removed'}")
     return {"candidate_id": candidate_id, "profile_url": url}
-
-
-SHORTLIST_SIZE = 8
 
 
 def role_shortlists(kb: KB, conn, sc: dict, capabilities: list[dict], archetype_ids: list[str],

@@ -144,13 +144,21 @@ def test_role_shortlists_are_evidence_backed(conn):
     assert any(s["shortlist"] for s in r["strategies"])
 
 
-def test_open_role_fit_points_at_advertised_roles(conn):
+def test_open_jobs_cover_every_live_apac_posting(conn):
+    ce.set_status(conn, "c-sg-01", "parked", "t")
     r = run(conn)
-    hiring = {a["id"] for a in r["archetypes"] if a["open_roles"]}
-    matched = [c["open_role_fit"] for c in r["candidates"] if c["open_role_fit"]]
-    assert matched
-    for m in matched:
-        assert m["archetype_id"] in hiring and m["roles"]
+    live = conn.execute("SELECT COUNT(*) FROM job_postings WHERE active=1 AND market IS NOT NULL").fetchone()[0]
+    assert len(r["open_jobs"]) == live > 0
+    for j in r["open_jobs"]:
+        assert j["url"].startswith("https://jobs.ashbyhq.com/")
+        assert len(j["matches"]) <= ce.SHORTLIST_SIZE
+        assert [m["score"] for m in j["matches"]] == sorted((m["score"] for m in j["matches"]), reverse=True)
+        assert "c-sg-01" not in {m["candidate_id"] for m in j["matches"]}
+        assert j["profile"] or j["note"] or not j["matches"]
+    fde = next(j for j in r["open_jobs"] if j["title"] == "Forward Deployed Engineer - Japan")
+    assert fde["profile"]["id"] == "japan_enterprise_engineer"
+    best = {c["id"]: c["best_job"] for c in r["candidates"] if c["best_job"]}
+    assert best and all(b["url"] for b in best.values())
 
 
 def test_profile_link_is_validated_and_audited(conn):

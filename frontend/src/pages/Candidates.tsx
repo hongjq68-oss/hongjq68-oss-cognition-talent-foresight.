@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import clsx from "clsx";
-import { Check, X, RotateCcw, ExternalLink, Download, Info, Building2, Pencil, Briefcase } from "lucide-react";
+import { Check, X, RotateCcw, ExternalLink, Download, Info, Building2, Pencil, Briefcase, RefreshCw } from "lucide-react";
 import { api } from "../api";
 import { useApp } from "../state";
 import { Card, Details, MARKET_NAMES, PageHeader, PoolBadge, Score, Stat, Tabs } from "../components/ui";
-import type { Candidate } from "../types";
+import type { Candidate, OpenJob } from "../types";
 
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
 
@@ -34,6 +34,35 @@ function ProfileLink({ c, onChange }: { c: Candidate; onChange: () => void }) {
         ? <a href={c.profile_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline"><ExternalLink className="h-3 w-3" /> {host(c.profile_url)}</a>
         : <span className="text-slate-400">No profile link{c.synthetic ? " (synthetic profile)" : ""}</span>}
       <button className="inline-flex items-center gap-0.5 text-slate-500 hover:text-brand-700" onClick={() => setEdit(true)}><Pencil className="h-3 w-3" /> {c.profile_url ? "Edit" : "Add link"}</button>
+    </div>
+  );
+}
+
+function JobGroup({ j, cands, sel, onSelect }: { j: OpenJob; cands: Candidate[]; sel: string; onSelect: (id: string) => void }) {
+  const [all, setAll] = useState(false);
+  const byId = new Map(cands.map((x) => [x.id, x]));
+  const items = j.matches.filter((m) => byId.has(m.candidate_id));
+  const shown = all ? items : items.slice(0, 3);
+  return (
+    <div>
+      <div className="flex items-start gap-2 border-y border-slate-100 bg-slate-50 px-3 py-2">
+        <Briefcase className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-500" />
+        <div className="min-w-0 flex-1">
+          <a href={j.url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-slate-800 hover:text-brand-700 hover:underline">{j.title} <ExternalLink className="inline h-3 w-3" /></a>
+          <div className="truncate text-[11px] text-slate-500">
+            {j.location}{j.department ? ` · ${j.department}` : ""}
+            {j.profile && <> · scored as <span className="text-slate-700">{j.profile.name}</span>{j.profile.basis === "inferred" && " (inferred)"}</>}
+          </div>
+        </div>
+        <span className="chip shrink-0 bg-white text-slate-600">{items.length} {items.length === 1 ? "match" : "matches"}</span>
+      </div>
+      {j.note && <div className="px-3 py-2 text-[11px] text-slate-400">{j.note}</div>}
+      {!j.note && !items.length && <div className="px-3 py-2 text-[11px] text-slate-400">No candidate with relevant evidence yet.</div>}
+      <div className="divide-y divide-slate-100">
+        {shown.map((m) => <Row key={m.candidate_id} x={byId.get(m.candidate_id)!} selected={sel === m.candidate_id} onSelect={() => onSelect(m.candidate_id)}
+          score={m.score} role={m.strengths.length ? `✓ ${m.strengths.join(" · ")}` : byId.get(m.candidate_id)!.headline} />)}
+      </div>
+      {items.length > 3 && <button onClick={() => setAll(!all)} className="w-full px-3 py-1.5 text-left text-[11px] font-medium text-brand-700 hover:underline">{all ? "Show top 3" : `Show all ${items.length}`}</button>}
     </div>
   );
 }
@@ -114,8 +143,8 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
           <div className="mt-0.5 flex items-center gap-1 text-sm text-slate-700"><Building2 className="h-3.5 w-3.5 text-slate-400" /> {c.employer_descriptor}</div>
           <ProfileLink key={c.profile_url || ""} c={c} onChange={onChange} />
           <div className="mt-1 text-sm">Best role: <b>{f.archetype}</b></div>
-          {c.open_role_fit && c.open_role_fit.archetype_id !== f.archetype_id && (
-            <div className="text-xs text-slate-500">Best open role: <b>{c.open_role_fit.archetype}</b> ({c.open_role_fit.score.toFixed(0)})</div>
+          {c.best_job && (
+            <div className="text-xs text-slate-500">Best open job: <a href={c.best_job.url} target="_blank" rel="noreferrer" className="font-semibold text-brand-700 hover:underline">{c.best_job.title}</a> · {c.best_job.market} ({c.best_job.score.toFixed(0)})</div>
           )}
         </div>
       </div>
@@ -208,15 +237,12 @@ export default function Candidates() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"fit" | "roles">("fit");
   const list = a!.candidates.filter((x) => !q || STATUS[x.status].label === q);
-  const roleOrder = a!.archetypes.filter((r) => r.open_roles.length).map((r) => r.id);
-  const groups = [
-    ...roleOrder.map((id) => {
-      const r = a!.archetypes.find((y) => y.id === id)!;
-      const items = list.filter((x) => x.open_role_fit?.archetype_id === id).sort((p, n) => n.open_role_fit!.score - p.open_role_fit!.score);
-      return { id, name: r.name, roles: r.open_roles, items };
-    }),
-    { id: "_none", name: "No matching open role", roles: [], items: list.filter((x) => !x.open_role_fit) },
-  ].filter((g) => g.items.length);
+  const [mkt, setMkt] = useState("");
+  const jobs = a!.open_jobs.filter((j) => !mkt || j.market === mkt);
+  const markets = [...new Set(a!.open_jobs.map((j) => j.market))];
+  const pulled = a!.open_jobs.map((j) => j.retrieved_on).filter(Boolean).sort().pop();
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = async () => { setRefreshing(true); try { await api.refresh(); await reload(); } finally { setRefreshing(false); } };
   const c = a!.candidates.find((x) => x.id === sel);
   const count = (s: string) => a!.candidates.filter((x) => x.status === s).length;
   const strong = a!.candidates.filter((x) => x.best_fit.score >= 65).length;
@@ -236,7 +262,7 @@ export default function Candidates() {
         <Card className="lg:col-span-2 !p-0">
           <div className="flex items-center gap-2 border-b border-slate-100 px-3 pt-3 text-xs text-slate-500">
             Sort by
-            {([["fit", "Best fit"], ["roles", "Open roles"]] as const).map(([k, l]) => (
+            {([["fit", "Best fit"], ["roles", "Open jobs"]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setSort(k)} className={clsx("chip", sort === k ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600")}>{l}</button>
             ))}
           </div>
@@ -252,28 +278,18 @@ export default function Candidates() {
             </div>
           ) : (
             <div>
-              {groups.map((g) => (
-                <div key={g.id}>
-                  <div className="flex items-center gap-2 border-y border-slate-100 bg-slate-50 px-3 py-2">
-                    <Briefcase className="h-3.5 w-3.5 shrink-0 text-slate-500" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-semibold text-slate-800">{g.name}</div>
-                      {g.roles.length > 0 && (
-                        <div className="truncate text-[11px] text-slate-500">
-                          {g.roles.slice(0, 2).map((r, i) => <span key={r.url}>{i > 0 && " · "}<a href={r.url} target="_blank" rel="noreferrer" className="hover:text-brand-700 hover:underline">{r.title}</a></span>)}
-                          {g.roles.length > 2 && ` +${g.roles.length - 2} more`}
-                        </div>
-                      )}
-                    </div>
-                    <span className="chip shrink-0 bg-white text-slate-600">{g.roles.length ? `${g.roles.length} open` : "—"}</span>
-                  </div>
-                  <div className="divide-y divide-slate-100">
-                    {g.items.map((x) => <Row key={x.id} x={x} selected={sel === x.id} onSelect={() => setSel(x.id)}
-                      score={x.open_role_fit?.score ?? x.best_fit.score} role={x.open_role_fit ? x.headline : x.best_fit.archetype} />)}
-                  </div>
-                </div>
-              ))}
-              {!groups.length && <div className="p-4 text-sm text-slate-400">No candidates in this stage</div>}
+              <div className="flex flex-wrap items-center gap-1 px-3 py-2 text-[11px] text-slate-500">
+                <span>{a!.open_jobs.length} live APAC jobs from Cognition's Ashby board{pulled ? ` · pulled ${pulled.slice(0, 10)}` : ""}</span>
+                <button onClick={refresh} disabled={refreshing} className="inline-flex items-center gap-0.5 text-brand-700 hover:underline"><RefreshCw className={clsx("h-3 w-3", refreshing && "animate-spin")} /> Refresh</button>
+              </div>
+              <div className="flex flex-wrap gap-1 px-3 pb-2">
+                {["", ...markets].map((m) => (
+                  <button key={m} onClick={() => setMkt(m)} className={clsx("chip", mkt === m ? "bg-ink-900 text-white" : "bg-slate-100 text-slate-600")}>
+                    {m ? `${MARKET_NAMES[m] || m} (${a!.open_jobs.filter((j) => j.market === m).length})` : "All markets"}
+                  </button>
+                ))}
+              </div>
+              {jobs.map((j) => <JobGroup key={j.id} j={j} cands={list} sel={sel} onSelect={setSel} />)}
             </div>
           )}
         </Card>

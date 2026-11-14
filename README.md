@@ -34,7 +34,7 @@ Tests: `cd backend && .venv/bin/python -m pytest -q`
 | B. Customer Opportunity | 7 segments and 21 customer problems, each with severity, complexity, use cases and adoption barriers |
 | C. Capability Forecast | 36 capabilities in 5 categories. Demand for now/6/12/24 months, scarcity, lead time, need-by and start-search dates, 5 classifications, confidence |
 | D. Talent Ecosystem | 50 organisations across 5 pool types (direct, adjacent, customer-side, consulting/SI, founders). Every capability is covered by all 5. Customers, partners and competitors are flagged |
-| E. Candidate Discovery | 14 **synthetic** profiles. Fit is based on evidence: title-only evidence scores 0, unverified evidence counts half. Includes a recruiter verification workflow and audit log |
+| E. Candidate Discovery | 14 **synthetic** profiles. Fit is based on evidence: title-only evidence scores 0, unverified evidence counts half. Includes a recruiter verification workflow and audit log. "Open jobs" groups candidates under every live APAC posting on the Ashby board, scored against the role profile each posting maps to (recruiting roles are not scored) |
 | F. Hiring Strategy | Archetypes (capability bundles), search strings for approved channels, target organisations, timeline |
 | Scenario Planner | 6 preset scenarios (APAC banking is the default). You can reweight segments and markets |
 | Executive Report | 11 sections, with evidence labels and citations. Exports to Markdown or print |
