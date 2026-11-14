@@ -5,6 +5,7 @@ from pathlib import Path
 from .. import db
 from .archetypes import ARCHETYPES
 from .candidates import CANDIDATES
+from .monitors import MONITORS
 from .capabilities import CAPABILITIES
 from .organisations import ORGANISATIONS
 from .scenarios import SCENARIOS
@@ -76,6 +77,8 @@ def seed(reset: bool = True) -> None:
             db.upsert(conn, "archetypes", a)
         for s in SCENARIOS:
             db.upsert(conn, "scenarios", s)
+        for m in MONITORS:
+            db.upsert(conn, "monitors", m | {"active": 1, "created_at": "2026-11-14T00:00:00+00:00", "last_run_at": None})
         for k in CANDIDATES:
             rec = {x: v for x, v in k.items() if x != "evidence"}
             db.upsert(conn, "candidates", rec)

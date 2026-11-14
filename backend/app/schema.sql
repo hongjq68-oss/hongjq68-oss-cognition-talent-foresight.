@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS candidate_evidence (
   claim          TEXT NOT NULL,          -- what they built or delivered
   problem_solved TEXT NOT NULL,
   capability_ids TEXT NOT NULL,
-  evidence_type  TEXT NOT NULL CHECK (evidence_type IN ('public_artifact','talk','publication','open_source','news','profile_self_reported','title_only')),
+  evidence_type  TEXT NOT NULL CHECK (evidence_type IN ('public_artifact','talk','publication','open_source','news','profile_self_reported','title_only','patent')),
   source_url     TEXT,
   source_date    TEXT,
   verification   TEXT NOT NULL DEFAULT 'unverified' CHECK (verification IN ('unverified','verified','rejected'))
@@ -162,4 +162,46 @@ CREATE TABLE IF NOT EXISTS refresh_runs (
   ok         INTEGER NOT NULL,
   new_items  INTEGER NOT NULL DEFAULT 0,
   message    TEXT
+);
+
+-- Builder Evidence Agent: discovery monitors and the leads they surface (unpromoted leads expire)
+CREATE TABLE IF NOT EXISTS monitors (
+  id             TEXT PRIMARY KEY,
+  name           TEXT NOT NULL,
+  capability_id  TEXT NOT NULL REFERENCES capabilities(id),
+  market         TEXT,
+  queries        TEXT NOT NULL,          -- {"github": "...", "hn": "...", "devto": "...", "arxiv": "..."}
+  active         INTEGER NOT NULL DEFAULT 1,
+  created_at     TEXT NOT NULL,
+  last_run_at    TEXT
+);
+
+CREATE TABLE IF NOT EXISTS leads (
+  id               TEXT PRIMARY KEY,
+  monitor_id       TEXT NOT NULL REFERENCES monitors(id),
+  person_key       TEXT NOT NULL,
+  display_name     TEXT NOT NULL,
+  source           TEXT NOT NULL,
+  profile_url      TEXT,
+  location         TEXT,
+  company          TEXT,
+  bio              TEXT,
+  market_verified  INTEGER NOT NULL DEFAULT 0,
+  evidence         TEXT NOT NULL,
+  capability_ids   TEXT NOT NULL,
+  first_seen       TEXT NOT NULL,
+  last_seen        TEXT NOT NULL,
+  status           TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','promoted','dismissed')),
+  candidate_id     TEXT REFERENCES candidates(id),
+  expires_at       TEXT
+);
+
+CREATE TABLE IF NOT EXISTS builder_runs (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  at       TEXT NOT NULL,
+  kind     TEXT NOT NULL,
+  target   TEXT NOT NULL,
+  sources  TEXT NOT NULL,
+  items    INTEGER NOT NULL,
+  added    INTEGER NOT NULL
 );

@@ -8,7 +8,7 @@ from .. import db
 from .kb import KB
 
 EVIDENCE_WEIGHT = {"public_artifact": 1.0, "open_source": 1.0, "publication": 0.9, "talk": 0.8, "news": 0.7,
-                   "profile_self_reported": 0.3, "title_only": 0.0}
+                   "profile_self_reported": 0.3, "title_only": 0.0, "patent": 0.9}
 VERIFICATION_WEIGHT = {"verified": 1.0, "unverified": 0.5, "rejected": 0.0}
 TRANSITIONS = {
     "discovered": {"evidence_review", "parked"},

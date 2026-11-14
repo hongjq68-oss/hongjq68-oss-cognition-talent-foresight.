@@ -2,6 +2,8 @@
 import csv
 import io
 import os
+import asyncio
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -13,8 +15,34 @@ from pydantic import BaseModel
 from . import db
 from .connectors import ashby, cognition_blog
 from .engine import analysis, kb as kb_mod, report
+from .engine import builders
 from .engine import candidates as cand_engine
 from .seed import load as seed_load
+from .seed.monitors import MONITORS
+
+log = logging.getLogger("foresight")
+MONITOR_INTERVAL_HOURS = float(os.environ.get("FORESIGHT_MONITOR_INTERVAL_HOURS", "24"))
+
+
+def run_due_monitors() -> list[dict]:
+    """Scheduled discovery: re-run monitors older than the interval and purge expired leads."""
+    out = []
+    with db.session() as conn:
+        builders.purge_expired(conn)
+        due = builders.due_monitors(conn, MONITOR_INTERVAL_HOURS)
+    for mid in due:
+        with db.session() as conn:
+            out.append(builders.run_monitor(conn, kb_mod.load(conn), mid))
+    return out
+
+
+async def _monitor_loop():
+    while True:
+        try:
+            await asyncio.to_thread(run_due_monitors)
+        except Exception:  # noqa: BLE001
+            log.exception("scheduled monitor run failed")
+        await asyncio.sleep(3600)
 
 
 
@@ -25,7 +53,13 @@ async def lifespan(_app):
     else:
         with db.session() as conn:
             db.init_schema(conn)
+            if not conn.execute("SELECT 1 FROM monitors").fetchone():
+                for m in MONITORS:
+                    db.upsert(conn, "monitors", m | {"active": 1, "created_at": builders._now().isoformat(timespec="seconds")})
+    task = asyncio.create_task(_monitor_loop()) if MONITOR_INTERVAL_HOURS > 0 else None
     yield
+    if task:
+        task.cancel()
 
 
 app = FastAPI(title="Cognition Talent Foresight", lifespan=lifespan)
@@ -181,6 +215,77 @@ def refresh():
                 conn.execute("INSERT INTO refresh_runs (at, connector, ok, new_items, message) VALUES (datetime('now'),?,0,0,?)", (name, str(e)[:300]))
                 out[name] = {"ok": False, "error": str(e)[:300]}
     return out
+
+
+class Handles(BaseModel):
+    candidate_id: str | None = None
+    display_name: str | None = None
+    market: str = "SG"
+    pool_type: str = "founder"
+    github: str | None = None
+    hn: str | None = None
+    devto: str | None = None
+    arxiv: str | None = None
+    huggingface: str | None = None
+    npm: str | None = None
+    rss: str | None = None
+    links: list[str] = []
+
+
+class MonitorIn(BaseModel):
+    name: str
+    capability_id: str
+    market: str | None = None
+    queries: dict[str, str]
+
+
+class LeadDecision(BaseModel):
+    decision: str
+    market: str | None = None
+    pool_type: str = "founder"
+
+
+def _guard(fn):
+    try:
+        return fn()
+    except KeyError:
+        raise HTTPException(404, "Not found")
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.get("/api/builders")
+def builders_overview():
+    with db.session() as conn:
+        return {"monitors": builders.list_monitors(conn), "leads": builders.list_leads(conn),
+                "runs": builders.runs(conn), "sources": builders.source_status(),
+                "interval_hours": MONITOR_INTERVAL_HOURS, "lead_ttl_days": builders.LEAD_TTL_DAYS}
+
+
+@app.post("/api/builders/investigate")
+def builders_investigate(body: Handles):
+    h = body.model_dump()
+    with db.session() as conn:
+        return _guard(lambda: builders.investigate(conn, kb_mod.load(conn), h, body.candidate_id, body.display_name,
+                                                   body.market, body.pool_type))
+
+
+@app.post("/api/builders/monitors")
+def builders_monitor_create(body: MonitorIn):
+    with db.session() as conn:
+        return _guard(lambda: builders.save_monitor(conn, body.model_dump()))
+
+
+@app.post("/api/builders/monitors/{monitor_id}/run")
+def builders_monitor_run(monitor_id: str):
+    with db.session() as conn:
+        return _guard(lambda: builders.run_monitor(conn, kb_mod.load(conn), monitor_id, "recruiter"))
+
+
+@app.post("/api/builders/leads/{lead_id:path}")
+def builders_lead(lead_id: str, body: LeadDecision):
+    with db.session() as conn:
+        return _guard(lambda: builders.decide_lead(conn, lead_id, body.decision, body.market, body.pool_type))
 
 
 @app.post("/api/reset")

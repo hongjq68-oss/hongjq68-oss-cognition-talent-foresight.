@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Building2, Compass, FileText, Gauge, Layers, LineChart, Network, Radar, SlidersHorizontal, Users, RefreshCw } from "lucide-react";
+import { Building2, Compass, FileText, Gauge, Layers, LineChart, Network, Radar, SlidersHorizontal, Users, RefreshCw, ScanSearch } from "lucide-react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import { api } from "./api";
@@ -10,6 +10,7 @@ import Forecast from "./pages/Forecast";
 import Ecosystem from "./pages/Ecosystem";
 import Candidates from "./pages/Candidates";
 import Strategy from "./pages/Strategy";
+import Builders from "./pages/Builders";
 import Planner from "./pages/Planner";
 import ReportPage from "./pages/Report";
 import Architecture from "./pages/Architecture";
@@ -21,6 +22,7 @@ const NAV = [
   { to: "/ecosystem", label: "Talent Map", icon: Network, letter: "D" },
   { to: "/candidates", label: "Candidates", icon: Users, letter: "E" },
   { to: "/strategy", label: "Hiring Strategy", icon: Compass, letter: "F" },
+  { to: "/builders", label: "Builder Evidence", icon: ScanSearch, letter: "G" },
 ];
 const NAV2 = [
   { to: "/planner", label: "Scenario Planner", icon: SlidersHorizontal },
@@ -90,6 +92,7 @@ function Shell() {
               <Route path="/ecosystem" element={<Ecosystem />} />
               <Route path="/candidates" element={<Candidates />} />
               <Route path="/strategy" element={<Strategy />} />
+              <Route path="/builders" element={<Builders />} />
               <Route path="/planner" element={<Planner />} />
               <Route path="/report" element={<ReportPage />} />
               <Route path="/architecture" element={<Architecture />} />

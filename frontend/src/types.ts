@@ -108,3 +108,24 @@ export interface Overrides {
   scenario_id: string | null; name?: string; hypothesis?: string;
   segment_weights?: Record<string, number>; market_weights?: Record<string, number>; capability_boosts?: Record<string, number>;
 }
+
+export type SourceReport = Record<string, { ok: boolean; items?: number; error?: string }>;
+export interface BuilderEvidence {
+  claim: string; problem_solved: string; capability_ids: string[]; evidence_type: string;
+  source_url: string; source_date: string | null; source: string; kind: string;
+}
+export interface Monitor {
+  id: string; name: string; capability_id: string; market: string | null; queries: Record<string, string>;
+  active: number; last_run_at: string | null; leads_open: number; leads_new_last_run: number; leads_promoted: number;
+}
+export interface Lead {
+  id: string; monitor_id: string; display_name: string; source: string; profile_url: string | null; location: string | null;
+  company: string | null; bio: string | null; market_verified: number; evidence: BuilderEvidence[]; capability_ids: string[];
+  first_seen: string; last_seen: string; expires_at: string | null;
+}
+export interface BuilderOverview {
+  monitors: Monitor[]; leads: Lead[]; interval_hours: number; lead_ttl_days: number;
+  runs: { id: number; at: string; kind: string; target: string; sources: SourceReport; items: number; added: number }[];
+  sources: Record<string, { ready: boolean; authenticated?: boolean; note?: string | null }>;
+}
+export interface InvestigateResult { candidate_id: string; sources: SourceReport; items_found: number; mapped: number; added: number; unmapped: number }

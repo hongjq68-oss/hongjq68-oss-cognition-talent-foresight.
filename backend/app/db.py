@@ -11,6 +11,7 @@ DATA_DIR = Path(os.environ.get("FORESIGHT_DATA_DIR", ROOT.parent / "data"))
 DB_PATH = Path(os.environ.get("FORESIGHT_DB", DATA_DIR / "foresight.db"))
 
 JSON_COLUMNS = {
+    "queries", "evidence",
     "regions", "segment_ids", "data", "evidence_phrases", "horizon_profile", "cognition_use_cases",
     "adoption_barriers", "signal_ids", "markets", "capability_ids", "teams", "starting_titles",
     "capability_weights", "unconventional_backgrounds", "assessment", "posting_keywords", "learning_needs",
@@ -40,6 +41,13 @@ def init_schema(conn: sqlite3.Connection) -> None:
     cols = {r[1] for r in conn.execute("PRAGMA table_info(candidates)")}
     if "profile_url" not in cols:
         conn.execute("ALTER TABLE candidates ADD COLUMN profile_url TEXT")
+    ddl = conn.execute("SELECT sql FROM sqlite_master WHERE name='candidate_evidence'").fetchone()[0]
+    if "'patent'" not in ddl:
+        conn.executescript(
+            "PRAGMA legacy_alter_table=ON; ALTER TABLE candidate_evidence RENAME TO candidate_evidence_old;"
+            + ddl.replace("'title_only')", "'title_only','patent')") + ";"
+            "INSERT INTO candidate_evidence SELECT * FROM candidate_evidence_old; DROP TABLE candidate_evidence_old;"
+            "PRAGMA legacy_alter_table=OFF;")
 
 
 def row(r: sqlite3.Row | None) -> dict | None:

@@ -12,6 +12,14 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 
 const post = <T,>(path: string, body: unknown) => req<T>(path, { method: "POST", body: JSON.stringify(body) });
 
+export const builderApi = {
+  overview: () => req<import("./types").BuilderOverview>("/api/builders"),
+  investigate: (b: Record<string, unknown>) => post<import("./types").InvestigateResult>("/api/builders/investigate", b),
+  runMonitor: (id: string) => post<{ new: number; builders: number; items_found: number; sources: Record<string, { ok: boolean; items?: number; error?: string }> }>(`/api/builders/monitors/${id}/run`, {}),
+  createMonitor: (b: Record<string, unknown>) => post<{ id: string }>("/api/builders/monitors", b),
+  decide: (id: string, decision: string, market?: string, pool_type?: string) => post<{ candidate_id?: string }>(`/api/builders/leads/${encodeURIComponent(id)}`, { decision, market, pool_type }),
+};
+
 export const api = {
   meta: () => req<Meta>("/api/meta"),
   analysis: (o: Overrides) => post<Analysis>("/api/analysis", o),
