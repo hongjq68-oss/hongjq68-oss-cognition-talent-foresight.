@@ -174,6 +174,8 @@ MONITOR_SOURCES = {
     "devto": lambda q, loc: src.devto_tag(q), "arxiv": lambda q, loc: src.arxiv_search(q),
 }
 MARKET_LOCATION = {"SG": "Singapore", "JP": "Japan", "AU": "Australia", "IN": "India", "KR": "Korea"}
+APAC_LOCATIONS = ["Singapore", "Japan", "Tokyo", "Osaka", "Australia", "Sydney", "Melbourne", "India", "Bangalore",
+                  "Bengaluru", "Mumbai", "Delhi", "Hyderabad", "Pune", "Chennai", "Korea", "Seoul"]
 
 
 def list_monitors(conn) -> list[dict]:
@@ -204,7 +206,7 @@ def run_monitor(conn, kb: KB, monitor_id: str, actor: str = "scheduler") -> dict
     if not m:
         raise KeyError(monitor_id)
     queries = json.loads(m["queries"]) if isinstance(m["queries"], str) else m["queries"]
-    loc = MARKET_LOCATION.get(m["market"] or "")
+    loc = [MARKET_LOCATION[m["market"]]] if m["market"] else APAC_LOCATIONS
     now = _now().isoformat(timespec="seconds")
     items, report = [], {}
     for s, q in queries.items():
@@ -238,7 +240,7 @@ def run_monitor(conn, kb: KB, monitor_id: str, actor: str = "scheduler") -> dict
         db.upsert(conn, "leads", dict(
             id=lid, monitor_id=monitor_id, person_key=key, display_name=p["name"], source=p["source"],
             profile_url=p["profile_url"], location=p["location"], company=p["company"], bio=p["bio"],
-            market_verified=1 if market_known and loc else 0, evidence=merged,
+            market_verified=1 if market_known and any(x.lower() in p["location"].lower() for x in loc) else 0, evidence=merged,
             capability_ids=sorted({c for e in merged for c in e["capability_ids"]}),
             first_seen=old["first_seen"] if old else now, last_seen=now, status="new", candidate_id=None,
             expires_at=(_now() + timedelta(days=LEAD_TTL_DAYS)).isoformat(timespec="seconds")))
@@ -254,7 +256,7 @@ def list_leads(conn, monitor_id: str | None = None, status: str = "new") -> list
     if monitor_id:
         q += " AND monitor_id=?"
         args.append(monitor_id)
-    out = db.rows(conn.execute(q + " ORDER BY first_seen DESC, display_name", args))
+    out = db.rows(conn.execute(q + " ORDER BY market_verified DESC, first_seen DESC, display_name", args))
     for r in out:
         r["evidence"] = json.loads(r["evidence"]) if isinstance(r["evidence"], str) else r["evidence"]
     return out

@@ -38,7 +38,7 @@ function LeadCard({ l, caps, onDone }: { l: Lead; caps: Record<string, string>; 
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-semibold text-slate-900">{l.display_name}</span>
         <span className="chip bg-slate-100 text-slate-600">{SRC[l.source] || l.source}</span>
-        {l.location ? <span className="text-xs text-slate-500">{l.location}</span> : <span className="text-xs text-amber-700">Location unknown</span>}
+        {l.location ? <span className={clsx("text-xs", l.market_verified ? "font-medium text-emerald-700" : "text-slate-500")}>{l.location}</span> : <span className="text-xs text-amber-700">Location unknown</span>}
         {l.company && <span className="text-xs text-slate-500">· {l.company}</span>}
         {l.profile_url && <a href={l.profile_url} target="_blank" rel="noreferrer" className="text-xs text-brand-700 hover:underline"><ExternalLink className="inline h-3 w-3" /> profile</a>}
         <span className="ml-auto text-[11px] text-slate-400">first seen {l.first_seen.slice(0, 10)}</span>

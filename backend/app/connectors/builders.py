@@ -66,19 +66,34 @@ def github_user(login: str, limit: int = 8) -> list[dict]:
     return [_gh_repo_item(r, person) for r in repos]
 
 
-def github_search(query: str, location: str | None = None, limit: int = 10) -> list[dict]:
+def github_search(query: str, locations: list[str] | None = None, limit: int = 20) -> list[dict]:
+    """Top repos for the query, plus (for a market) people whose GitHub location and bio match it.
+    People whose stated location is outside `locations` are dropped; unstated locations are kept."""
     res = _gh(f"/search/repositories?q={quote(query)}&sort=stars&order=desc&per_page={limit}")
-    out, people = [], {}
-    for r in res.get("items", []):
-        if r["owner"].get("type") != "User":
-            continue
-        login = r["owner"]["login"]
+    people: dict[str, dict] = {}
+    out = []
+
+    def person(login: str) -> dict:
         if login not in people:
             people[login] = _gh_person(_gh(f"/users/{quote(login)}"))
-        p = people[login]
-        if location and location.lower() not in (p["location"] or "").lower():
-            continue
-        out.append(_gh_repo_item(r, p))
+        return people[login]
+
+    def in_region(p: dict) -> bool:
+        return not locations or not p["location"] or any(x.lower() in p["location"].lower() for x in locations)
+
+    for r in res.get("items", []):
+        if r["owner"].get("type") == "User" and in_region(p := person(r["owner"]["login"])):
+            out.append(_gh_repo_item(r, p))
+    if locations and len(locations) == 1:
+        term = query.split()[0]
+        users = _gh(f"/search/users?q={quote(f'{term} location:{locations[0]}')}&sort=followers&per_page=8")
+        for u in users.get("items", []):
+            if u.get("type") != "User":
+                continue
+            p = person(u["login"])
+            repos = _gh(f"/users/{quote(u['login'])}/repos?sort=pushed&per_page=30&type=owner")
+            out += [_gh_repo_item(r, p) for r in sorted((r for r in repos if not r.get("fork")),
+                                                        key=lambda r: -r.get("stargazers_count", 0))[:5]]
     return out
 
 
