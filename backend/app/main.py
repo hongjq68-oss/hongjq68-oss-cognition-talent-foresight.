@@ -22,6 +22,9 @@ from .seed import load as seed_load
 async def lifespan(_app):
     if not db.DB_PATH.exists():
         seed_load.seed()
+    else:
+        with db.session() as conn:
+            db.init_schema(conn)
     yield
 
 
@@ -114,6 +117,22 @@ class StatusChange(BaseModel):
     note: str | None = None
 
 
+class ProfileLink(BaseModel):
+    profile_url: str | None = None
+    actor: str = "recruiter"
+
+
+@app.post("/api/candidates/{candidate_id}/profile")
+def profile(candidate_id: str, body: ProfileLink):
+    with db.session() as conn:
+        try:
+            return cand_engine.set_profile(conn, candidate_id, body.profile_url, body.actor)
+        except KeyError:
+            raise HTTPException(404, "Unknown candidate")
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+
+
 @app.post("/api/candidates/{candidate_id}/status")
 def status(candidate_id: str, body: StatusChange):
     with db.session() as conn:
@@ -132,9 +151,9 @@ def ats_export(format: str = "json"):
     if format == "csv":
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["name", "synthetic", "headline", "market", "verified_evidence"])
+        w.writerow(["name", "synthetic", "headline", "current_company", "profile_url", "market", "verified_evidence"])
         for r in rows:
-            w.writerow([r["name"], r["synthetic"], r["headline"], r["market"],
+            w.writerow([r["name"], r["synthetic"], r["headline"], r["current_company"], r["profile_url"] or "", r["market"],
                         " | ".join(f"{e['claim']} ({e['source_url'] or 'no url'})" for e in r["verified_evidence"])])
         return Response(buf.getvalue(), media_type="text/csv",
                         headers={"Content-Disposition": "attachment; filename=ready_for_ats.csv"})

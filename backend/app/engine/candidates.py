@@ -1,6 +1,7 @@
 """Evidence-based candidate fit and recruiter verification workflow.
 
 A title or employer name alone contributes nothing. Unverified evidence counts half; rejected evidence counts zero."""
+import re
 from datetime import datetime, timezone
 
 from .. import db
@@ -78,18 +79,40 @@ def transferability(kb: KB, cand: dict, f: dict, problems: list[dict]) -> str:
 
 def shortlist(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list[dict], problems: list[dict]) -> list[dict]:
     demand = {c["id"]: c["peak"] for c in capabilities}
+    hiring = [a for a in archetypes if a["open_roles"]]
     out = []
     for cand in load_candidates(conn):
         fits = sorted((fit(kb, cand, kb.archetypes[a["id"]], sc, demand) for a in archetypes[:8]), key=lambda x: -x["score"])
         best = fits[0]
         out.append(candidate_view(cand) | {
-            "best_fit": best, "alternative_fits": [{"archetype": x["archetype"], "score": x["score"]} for x in fits[1:3]],
+            "best_fit": best, "open_role_fit": open_role_fit(kb, cand, hiring, sc, demand), "alternative_fits": [{"archetype": x["archetype"], "score": x["score"]} for x in fits[1:3]],
             "transferability": transferability(kb, cand, best, problems),
             "validation_questions": validation_questions(kb, cand, best),
             "missing_information": [g["name"] for g in best["gaps"]],
             "evidence_class": "recommendation",
         })
     return sorted(out, key=lambda x: -x["best_fit"]["score"])
+
+
+def open_role_fit(kb: KB, cand: dict, hiring: list[dict], sc: dict, demand: dict) -> dict | None:
+    """Best match among role profiles Cognition is advertising now; None without relevant evidence."""
+    fits = [(fit(kb, cand, kb.archetypes[a["id"]], sc, demand), a) for a in hiring]
+    fits = [x for x in fits if x[0]["evidence_fit"] > 0]
+    if not fits:
+        return None
+    f, a = max(fits, key=lambda x: x[0]["score"])
+    return {"archetype_id": a["id"], "archetype": a["name"], "score": f["score"], "roles": a["open_roles"]}
+
+
+def set_profile(conn, candidate_id: str, profile_url: str | None, actor: str) -> dict:
+    url = (profile_url or "").strip() or None
+    if url and not re.fullmatch(r"https?://[^\s/]+\.[^\s]+", url):
+        raise ValueError("Profile link must be a full http(s) URL")
+    if not conn.execute("SELECT 1 FROM candidates WHERE id=?", (candidate_id,)).fetchone():
+        raise KeyError(candidate_id)
+    conn.execute("UPDATE candidates SET profile_url=? WHERE id=?", (url, candidate_id))
+    audit(conn, actor, "profile_link", f"{candidate_id}: {url or 'removed'}")
+    return {"candidate_id": candidate_id, "profile_url": url}
 
 
 SHORTLIST_SIZE = 8
@@ -109,6 +132,7 @@ def role_shortlists(kb: KB, conn, sc: dict, capabilities: list[dict], archetype_
                 continue
             rows.append({
                 "candidate_id": cand["id"], "display_name": cand["display_name"], "headline": cand["headline"],
+                "employer_descriptor": cand["employer_descriptor"], "profile_url": cand["profile_url"],
                 "market": cand["market"], "pool_type": cand["pool_type"], "status": cand["status"],
                 "score": f["score"], "strengths": [d["name"] for d in f["demonstrated"][:3]],
                 "gaps": [g["name"] for g in f["gaps"][:2]],
@@ -119,7 +143,7 @@ def role_shortlists(kb: KB, conn, sc: dict, capabilities: list[dict], archetype_
 
 
 def candidate_view(c: dict) -> dict:
-    return {k: c[k] for k in ("id", "display_name", "synthetic", "headline", "employer_descriptor", "pool_type", "market",
+    return {k: c[k] for k in ("id", "display_name", "synthetic", "headline", "employer_descriptor", "profile_url", "pool_type", "market",
                               "background", "learning_needs", "status", "notes", "evidence")}
 
 
@@ -190,6 +214,7 @@ def ats_export(conn) -> list[dict]:
         if c["status"] != "ready_for_ats" or gate_error(conn, c["id"], "ready_for_ats"):
             continue
         out.append({"name": c["display_name"], "synthetic": bool(c["synthetic"]), "headline": c["headline"],
+                    "current_company": c["employer_descriptor"], "profile_url": c["profile_url"],
                     "market": c["market"], "background": c["background"], "notes": c["notes"],
                     "verified_evidence": [{"claim": e["claim"], "problem_solved": e["problem_solved"], "source_url": e["source_url"],
                                            "source_date": e["source_date"]} for e in c["evidence"] if e["verification"] == "verified"]})

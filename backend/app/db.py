@@ -37,6 +37,9 @@ def session():
 
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript((ROOT / "schema.sql").read_text())
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(candidates)")}
+    if "profile_url" not in cols:
+        conn.execute("ALTER TABLE candidates ADD COLUMN profile_url TEXT")
 
 
 def row(r: sqlite3.Row | None) -> dict | None:

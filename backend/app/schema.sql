@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS candidates (
   synthetic          INTEGER NOT NULL DEFAULT 1,
   headline           TEXT NOT NULL,
   employer_descriptor TEXT NOT NULL,
+  profile_url        TEXT,
   pool_type          TEXT NOT NULL,
   market             TEXT NOT NULL,
   background         TEXT NOT NULL,

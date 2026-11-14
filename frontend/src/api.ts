@@ -18,6 +18,7 @@ export const api = {
   report: (o: Overrides) => post<Report>("/api/report", o),
   reportMd: (o: Overrides) => post<string>("/api/report.md", o),
   review: (id: string, decision: string, note?: string) => post(`/api/evidence/${id}/review`, { decision, note }),
+  profile: (id: string, profile_url: string) => post(`/api/candidates/${id}/profile`, { profile_url }),
   status: (id: string, status: string, note?: string) => post(`/api/candidates/${id}/status`, { status, note }),
   refresh: () => post<Record<string, { ok: boolean; items?: number; error?: string }>>("/api/refresh", {}),
   reset: () => post("/api/reset", {}),

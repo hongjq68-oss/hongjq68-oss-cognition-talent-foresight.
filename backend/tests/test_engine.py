@@ -142,3 +142,21 @@ def test_role_shortlists_are_evidence_backed(conn):
         assert all(x["strengths"] for x in sl)
         assert "c-sg-01" not in {x["candidate_id"] for x in sl}
     assert any(s["shortlist"] for s in r["strategies"])
+
+
+def test_open_role_fit_points_at_advertised_roles(conn):
+    r = run(conn)
+    hiring = {a["id"] for a in r["archetypes"] if a["open_roles"]}
+    matched = [c["open_role_fit"] for c in r["candidates"] if c["open_role_fit"]]
+    assert matched
+    for m in matched:
+        assert m["archetype_id"] in hiring and m["roles"]
+
+
+def test_profile_link_is_validated_and_audited(conn):
+    with pytest.raises(ValueError):
+        ce.set_profile(conn, "c-sg-01", "javascript:alert(1)", "t")
+    ce.set_profile(conn, "c-sg-01", "https://github.com/example", "t")
+    assert next(c for c in run(conn)["candidates"] if c["id"] == "c-sg-01")["profile_url"] == "https://github.com/example"
+    assert conn.execute("SELECT COUNT(*) FROM audit_log WHERE action='profile_link'").fetchone()[0] == 1
+    ce.set_profile(conn, "c-sg-01", "", "t")

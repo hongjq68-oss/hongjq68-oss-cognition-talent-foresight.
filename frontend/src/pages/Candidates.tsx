@@ -1,11 +1,61 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import clsx from "clsx";
-import { Check, X, RotateCcw, ExternalLink, Download, Info } from "lucide-react";
+import { Check, X, RotateCcw, ExternalLink, Download, Info, Building2, Pencil, Briefcase } from "lucide-react";
 import { api } from "../api";
 import { useApp } from "../state";
 import { Card, Details, MARKET_NAMES, PageHeader, PoolBadge, Score, Stat, Tabs } from "../components/ui";
 import type { Candidate } from "../types";
+
+const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
+
+function ProfileLink({ c, onChange }: { c: Candidate; onChange: () => void }) {
+  const [edit, setEdit] = useState(false);
+  const [val, setVal] = useState(c.profile_url || "");
+  const [err, setErr] = useState<string | null>(null);
+  const save = async () => {
+    try { await api.profile(c.id, val); setEdit(false); setErr(null); onChange(); }
+    catch (e) { setErr(String((e as Error).message)); }
+  };
+  if (edit) return (
+    <div className="mt-1">
+      <div className="flex gap-1">
+        <input autoFocus value={val} onChange={(e) => setVal(e.target.value)} placeholder="https://… public profile a recruiter has checked"
+          className="min-w-0 flex-1 rounded-md border border-slate-300 px-2 py-1 text-xs" onKeyDown={(e) => e.key === "Enter" && save()} />
+        <button className="btn-primary !px-2 !py-1 text-xs" onClick={save}>Save</button>
+        <button className="btn-ghost !px-2 !py-1 text-xs" onClick={() => { setEdit(false); setVal(c.profile_url || ""); setErr(null); }}>Cancel</button>
+      </div>
+      {err && <p className="mt-1 text-xs text-rose-600">{err}</p>}
+    </div>
+  );
+  return (
+    <div className="mt-1 flex items-center gap-2 text-xs">
+      {c.profile_url
+        ? <a href={c.profile_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline"><ExternalLink className="h-3 w-3" /> {host(c.profile_url)}</a>
+        : <span className="text-slate-400">No profile link{c.synthetic ? " (synthetic profile)" : ""}</span>}
+      <button className="inline-flex items-center gap-0.5 text-slate-500 hover:text-brand-700" onClick={() => setEdit(true)}><Pencil className="h-3 w-3" /> {c.profile_url ? "Edit" : "Add link"}</button>
+    </div>
+  );
+}
+
+function Row({ x, selected, onSelect, score, role }: { x: Candidate; selected: boolean; onSelect: () => void; score: number; role: string }) {
+  return (
+    <div className={clsx("flex items-center gap-2 pr-3 hover:bg-slate-50", selected && "bg-brand-50/60")}>
+      <button onClick={onSelect} className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left">
+        <Score value={score} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2"><span className="truncate text-sm font-semibold text-slate-900">{x.display_name}</span><PoolBadge p={x.pool_type} /></div>
+          <div className="flex items-center gap-1 truncate text-xs text-slate-600"><Building2 className="h-3 w-3 shrink-0 text-slate-400" /><span className="truncate">{x.employer_descriptor}</span></div>
+          <div className="truncate text-xs text-slate-500">{role} · {x.market}</div>
+        </div>
+        <span className={clsx("chip shrink-0", STATUS[x.status].cls)}>{STATUS[x.status].label}</span>
+      </button>
+      {x.profile_url
+        ? <a href={x.profile_url} target="_blank" rel="noreferrer" title={`Open profile (${host(x.profile_url)})`} aria-label={`Open ${x.display_name}'s profile`} className="shrink-0 rounded p-1 text-brand-700 hover:bg-brand-50"><ExternalLink className="h-4 w-4" /></a>
+        : <span title="No profile link yet" className="shrink-0 p-1 text-slate-300"><ExternalLink className="h-4 w-4" /></span>}
+    </div>
+  );
+}
 
 const STATUS: Record<string, { label: string; cls: string; next: string[] }> = {
   discovered: { label: "Discovered", cls: "bg-slate-100 text-slate-700", next: ["evidence_review", "parked"] },
@@ -61,7 +111,12 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
             {c.synthetic ? <span className="chip bg-fuchsia-50 text-fuchsia-700">Synthetic</span> : null}
           </div>
           <div className="text-sm text-slate-600">{c.headline} · {MARKET_NAMES[c.market] || c.market}</div>
+          <div className="mt-0.5 flex items-center gap-1 text-sm text-slate-700"><Building2 className="h-3.5 w-3.5 text-slate-400" /> {c.employer_descriptor}</div>
+          <ProfileLink key={c.profile_url || ""} c={c} onChange={onChange} />
           <div className="mt-1 text-sm">Best role: <b>{f.archetype}</b></div>
+          {c.open_role_fit && c.open_role_fit.archetype_id !== f.archetype_id && (
+            <div className="text-xs text-slate-500">Best open role: <b>{c.open_role_fit.archetype}</b> ({c.open_role_fit.score.toFixed(0)})</div>
+          )}
         </div>
       </div>
       <Stepper status={c.status} />
@@ -151,7 +206,17 @@ export default function Candidates() {
   const [params] = useSearchParams();
   const [sel, setSel] = useState<string>(params.get("c") || a!.candidates[0]?.id);
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState<"fit" | "roles">("fit");
   const list = a!.candidates.filter((x) => !q || STATUS[x.status].label === q);
+  const roleOrder = a!.archetypes.filter((r) => r.open_roles.length).map((r) => r.id);
+  const groups = [
+    ...roleOrder.map((id) => {
+      const r = a!.archetypes.find((y) => y.id === id)!;
+      const items = list.filter((x) => x.open_role_fit?.archetype_id === id).sort((p, n) => n.open_role_fit!.score - p.open_role_fit!.score);
+      return { id, name: r.name, roles: r.open_roles, items };
+    }),
+    { id: "_none", name: "No matching open role", roles: [], items: list.filter((x) => !x.open_role_fit) },
+  ].filter((g) => g.items.length);
   const c = a!.candidates.find((x) => x.id === sel);
   const count = (s: string) => a!.candidates.filter((x) => x.status === s).length;
   const strong = a!.candidates.filter((x) => x.best_fit.score >= 65).length;
@@ -169,24 +234,48 @@ export default function Candidates() {
       <div className="flex items-center gap-2 text-xs text-fuchsia-800"><Info className="h-3.5 w-3.5" /> Demo profiles are synthetic. Scores count only evidence of what someone built; job titles score zero.</div>
       <div className="grid gap-5 lg:grid-cols-5">
         <Card className="lg:col-span-2 !p-0">
+          <div className="flex items-center gap-2 border-b border-slate-100 px-3 pt-3 text-xs text-slate-500">
+            Sort by
+            {([["fit", "Best fit"], ["roles", "Open roles"]] as const).map(([k, l]) => (
+              <button key={k} onClick={() => setSort(k)} className={clsx("chip", sort === k ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600")}>{l}</button>
+            ))}
+          </div>
           <div className="flex flex-wrap gap-1 border-b border-slate-100 p-3">
             {["", "Discovered", "Evidence review", "Verified", "Ready for ATS"].map((s) => (
               <button key={s} onClick={() => setQ(s)} className={clsx("chip", q === s ? "bg-ink-900 text-white" : "bg-slate-100 text-slate-600")}>{s || "All"}</button>
             ))}
           </div>
-          <div className="divide-y divide-slate-100">
-            {list.map((x) => (
-              <button key={x.id} onClick={() => setSel(x.id)} className={clsx("flex w-full items-center gap-3 p-3 text-left hover:bg-slate-50", sel === x.id && "bg-brand-50/60")}>
-                <Score value={x.best_fit.score} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2"><span className="truncate text-sm font-semibold text-slate-900">{x.display_name}</span><PoolBadge p={x.pool_type} /></div>
-                  <div className="truncate text-xs text-slate-500">{x.best_fit.archetype} · {x.market}</div>
+          {sort === "fit" ? (
+            <div className="divide-y divide-slate-100">
+              {list.map((x) => <Row key={x.id} x={x} selected={sel === x.id} onSelect={() => setSel(x.id)} score={x.best_fit.score} role={x.best_fit.archetype} />)}
+              {!list.length && <div className="p-4 text-sm text-slate-400">No candidates in this stage</div>}
+            </div>
+          ) : (
+            <div>
+              {groups.map((g) => (
+                <div key={g.id}>
+                  <div className="flex items-center gap-2 border-y border-slate-100 bg-slate-50 px-3 py-2">
+                    <Briefcase className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-xs font-semibold text-slate-800">{g.name}</div>
+                      {g.roles.length > 0 && (
+                        <div className="truncate text-[11px] text-slate-500">
+                          {g.roles.slice(0, 2).map((r, i) => <span key={r.url}>{i > 0 && " · "}<a href={r.url} target="_blank" rel="noreferrer" className="hover:text-brand-700 hover:underline">{r.title}</a></span>)}
+                          {g.roles.length > 2 && ` +${g.roles.length - 2} more`}
+                        </div>
+                      )}
+                    </div>
+                    <span className="chip shrink-0 bg-white text-slate-600">{g.roles.length ? `${g.roles.length} open` : "—"}</span>
+                  </div>
+                  <div className="divide-y divide-slate-100">
+                    {g.items.map((x) => <Row key={x.id} x={x} selected={sel === x.id} onSelect={() => setSel(x.id)}
+                      score={x.open_role_fit?.score ?? x.best_fit.score} role={x.open_role_fit ? x.headline : x.best_fit.archetype} />)}
+                  </div>
                 </div>
-                <span className={clsx("chip shrink-0", STATUS[x.status].cls)}>{STATUS[x.status].label}</span>
-              </button>
-            ))}
-            {!list.length && <div className="p-4 text-sm text-slate-400">No candidates in this stage</div>}
-          </div>
+              ))}
+              {!groups.length && <div className="p-4 text-sm text-slate-400">No candidates in this stage</div>}
+            </div>
+          )}
         </Card>
         <Card className="lg:col-span-3">{c ? <Detail key={c.id} c={c} onChange={reload} /> : <div className="text-sm text-slate-500">Select a candidate</div>}</Card>
       </div>

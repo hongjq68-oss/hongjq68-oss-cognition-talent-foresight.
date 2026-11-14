@@ -55,7 +55,7 @@ export interface Strategy {
 }
 
 export interface ShortlistEntry {
-  candidate_id: string; display_name: string; headline: string; market: string; pool_type: PoolType; status: string;
+  candidate_id: string; display_name: string; headline: string; employer_descriptor: string; profile_url: string | null; market: string; pool_type: PoolType; status: string;
   score: number; strengths: string[]; gaps: string[]; verified_evidence: number;
 }
 
@@ -68,10 +68,12 @@ export interface Fit {
   demonstrated: { id: string; name: string; strength: number; evidence_id: string }[];
   gaps: { id: string; name: string; weight: number }[];
 }
+export interface OpenRoleFit { archetype_id: string; archetype: string; score: number; roles: Role[] }
+
 export interface Candidate {
-  id: string; display_name: string; synthetic: number; headline: string; employer_descriptor: string; pool_type: PoolType;
-  market: string; background: string; learning_needs: string[]; status: string; notes: string; evidence: Evidence[];
-  best_fit: Fit; alternative_fits: { archetype: string; score: number }[]; transferability: string;
+  id: string; display_name: string; synthetic: number; headline: string; employer_descriptor: string; profile_url: string | null;
+  pool_type: PoolType; market: string; background: string; learning_needs: string[]; status: string; notes: string; evidence: Evidence[];
+  best_fit: Fit; open_role_fit: OpenRoleFit | null; alternative_fits: { archetype: string; score: number }[]; transferability: string;
   validation_questions: string[]; missing_information: string[];
 }
 

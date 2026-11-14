@@ -23,6 +23,7 @@ function Shortlist({ items }: { items: ShortlistEntry[] }) {
               <PoolBadge p={x.pool_type} />
               <span className="text-xs text-slate-400">{x.market} · {tier(x.score)} fit</span>
             </div>
+            <div className="truncate text-xs text-slate-500">{x.employer_descriptor}</div>
             <div className="mt-0.5 truncate text-xs text-slate-600">
               <span className="text-emerald-700">✓ {x.strengths.join(" · ")}</span>
               {x.gaps.length > 0 && <span className="ml-2 text-amber-700">• check {x.gaps.join(", ")}</span>}
