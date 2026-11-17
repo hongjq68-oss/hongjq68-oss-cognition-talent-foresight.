@@ -32,7 +32,7 @@ function ProfileLink({ c, onChange }: { c: Candidate; onChange: () => void }) {
     <div className="mt-1 flex items-center gap-2 text-xs">
       {c.profile_url
         ? <a href={c.profile_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline"><ExternalLink className="h-3 w-3" /> {host(c.profile_url)}</a>
-        : <span className="text-slate-400">No profile link{c.synthetic ? " (synthetic profile)" : ""}</span>}
+        : <span className="text-slate-400">No profile link{c.synthetic ? " (demo profile)" : ""}</span>}
       <button className="inline-flex items-center gap-0.5 text-slate-500 hover:text-brand-700" onClick={() => setEdit(true)}><Pencil className="h-3 w-3" /> {c.profile_url ? "Edit" : "Add link"}</button>
     </div>
   );
@@ -57,7 +57,7 @@ function JobGroup({ j, cands, sel, onSelect }: { j: OpenJob; cands: Candidate[];
         <span className="chip shrink-0 bg-white text-slate-600">{items.length} {items.length === 1 ? "match" : "matches"}</span>
       </div>
       {j.note && <div className="px-3 py-2 text-[11px] text-slate-400">{j.note}</div>}
-      {!j.note && !items.length && <div className="px-3 py-2 text-[11px] text-slate-400">No candidate with relevant evidence yet.</div>}
+      {!j.note && !items.length && <div className="px-3 py-2 text-[11px] text-slate-400">Nobody with matching past work yet.</div>}
       <div className="divide-y divide-slate-100">
         {shown.map((m) => <Row key={m.candidate_id} x={byId.get(m.candidate_id)!} selected={sel === m.candidate_id} onSelect={() => onSelect(m.candidate_id)}
           score={m.score} role={m.strengths.length ? `✓ ${m.strengths.join(" · ")}` : byId.get(m.candidate_id)!.headline} />)}
@@ -87,17 +87,18 @@ function Row({ x, selected, onSelect, score, role }: { x: Candidate; selected: b
 }
 
 const STATUS: Record<string, { label: string; cls: string; next: string[] }> = {
-  discovered: { label: "Discovered", cls: "bg-slate-100 text-slate-700", next: ["evidence_review", "parked"] },
-  evidence_review: { label: "Evidence review", cls: "bg-amber-50 text-amber-800", next: ["verified", "parked"] },
-  verified: { label: "Verified", cls: "bg-emerald-50 text-emerald-700", next: ["ready_for_ats", "evidence_review", "parked"] },
+  discovered: { label: "New", cls: "bg-slate-100 text-slate-700", next: ["evidence_review", "parked"] },
+  evidence_review: { label: "Checking", cls: "bg-amber-50 text-amber-800", next: ["verified", "parked"] },
+  verified: { label: "Checked", cls: "bg-emerald-50 text-emerald-700", next: ["ready_for_ats", "evidence_review", "parked"] },
   ready_for_ats: { label: "Ready for ATS", cls: "bg-brand-50 text-brand-700", next: ["verified", "parked"] },
   parked: { label: "Parked", cls: "bg-slate-100 text-slate-500", next: ["discovered"] },
 };
 const STEPS = ["discovered", "evidence_review", "verified", "ready_for_ats"];
 const ETYPE: Record<string, string> = {
-  public_artifact: "Public artifact", open_source: "Open source", publication: "Publication", talk: "Talk",
-  news: "News", profile_self_reported: "Self-reported", title_only: "Title only · scores 0",
+  public_artifact: "Launch or demo", open_source: "Open-source code", publication: "Article or paper", talk: "Talk",
+  news: "In the news", profile_self_reported: "Self-described", title_only: "Job title only · counts 0", patent: "Patent",
 };
+const VERIF_LABEL: Record<string, string> = { verified: "Confirmed", rejected: "Rejected", unverified: "Not checked yet" };
 const VERIF: Record<string, string> = { verified: "text-emerald-700", rejected: "text-rose-600", unverified: "text-slate-400" };
 
 function Stepper({ status }: { status: string }) {
@@ -122,7 +123,7 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
     try {
       const r = (await fn()) as { candidate_status?: string };
       const revoked = r?.candidate_status && c.status !== "discovered" && r.candidate_status !== c.status;
-      setErr(revoked ? `Status moved back to ${STATUS[r.candidate_status!].label}: the evidence no longer meets the ${STATUS[c.status].label} requirements.` : null);
+      setErr(revoked ? `Status moved back to ${STATUS[r.candidate_status!].label}: the checked work no longer meets the ${STATUS[c.status].label} requirements.` : null);
       onChange();
     } catch (e) { setErr(String((e as Error).message)); }
   };
@@ -137,7 +138,7 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-semibold">{c.display_name}</h2>
-            {c.synthetic ? <span className="chip bg-fuchsia-50 text-fuchsia-700">Synthetic</span> : null}
+            {c.synthetic ? <span className="chip bg-fuchsia-50 text-fuchsia-700">Demo profile</span> : null}
           </div>
           <div className="text-sm text-slate-600">{c.headline} · {MARKET_NAMES[c.market] || c.market}</div>
           <div className="mt-0.5 flex items-center gap-1 text-sm text-slate-700"><Building2 className="h-3.5 w-3.5 text-slate-400" /> {c.employer_descriptor}</div>
@@ -163,12 +164,12 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
       </div>
 
       <div className={clsx("flex items-center justify-between rounded-lg px-3 py-2 text-sm", verified >= 2 ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-600")}>
-        <span><b>{verified}</b> of {c.evidence.length} evidence items verified{pending ? ` · ${pending} to review` : ""}</span>
-        <span className="text-xs">Need 2 to verify</span>
+        <span><b>{verified}</b> of {c.evidence.length} pieces of work confirmed{pending ? ` · ${pending} to check` : ""}</span>
+        <span className="text-xs">Need 2 checked</span>
       </div>
 
       <Tabs value={tab} onChange={setTab} tabs={[
-        { id: "evidence", label: `Evidence (${c.evidence.length})` },
+        { id: "evidence", label: `Past work (${c.evidence.length})` },
         { id: "fit", label: "Why they fit" },
         { id: "questions", label: `Questions (${c.validation_questions.length})` },
       ]} />
@@ -182,12 +183,12 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
                   <div className="text-sm font-medium text-slate-800">{e.claim}</div>
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
                     <span>{ETYPE[e.evidence_type]}</span><span>·</span>
-                    <span className={clsx("capitalize font-medium", VERIF[e.verification])}>{e.verification}</span>
+                    <span className={clsx("capitalize font-medium", VERIF[e.verification])}>{VERIF_LABEL[e.verification]}</span>
                     {e.source_url && <a href={e.source_url} target="_blank" rel="noreferrer" className="text-brand-700"><ExternalLink className="inline h-3 w-3" /> source</a>}
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-1">
-                  <button title="Verify" aria-label="Verify" className={clsx("btn-secondary !px-2 !py-1 text-xs", e.verification === "verified" && "!bg-emerald-600 !text-white")} onClick={() => act(() => api.review(e.id, "verified"))}><Check className="h-3 w-3" /> Verify</button>
+                  <button title="Confirm" aria-label="Confirm" className={clsx("btn-secondary !px-2 !py-1 text-xs", e.verification === "verified" && "!bg-emerald-600 !text-white")} onClick={() => act(() => api.review(e.id, "verified"))}><Check className="h-3 w-3" /> Confirm</button>
                   <button title="Reject" aria-label="Reject" className={clsx("btn-secondary !px-2 !py-1 text-xs", e.verification === "rejected" && "!bg-rose-600 !text-white")} onClick={() => act(() => api.review(e.id, "rejected"))}><X className="h-3 w-3" /> Reject</button>
                   {e.verification !== "unverified" && <button title="Reset" aria-label="Reset" className="btn-ghost !px-2 !py-1 text-xs" onClick={() => act(() => api.review(e.id, "unverified"))}><RotateCcw className="h-3 w-3" /> Reset</button>}
                 </div>
@@ -206,11 +207,11 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
       {tab === "fit" && (
         <div className="space-y-3 text-sm text-slate-700">
           <p>{c.transferability}</p>
-          <div className="text-xs text-slate-500">Evidence fit {(f.evidence_fit * 100).toFixed(0)}% · Market fit {f.market_fit}</div>
+          <div className="text-xs text-slate-500">Past-work match {(f.evidence_fit * 100).toFixed(0)}% · Market fit {f.market_fit}</div>
           {c.alternative_fits.length > 0 && <div className="text-xs text-slate-500">Also fits: {c.alternative_fits.map((x) => `${x.archetype} (${x.score.toFixed(0)})`).join(", ")}</div>}
           <Details label="Background">
             <p className="text-sm text-slate-600">{c.background}</p>
-            {c.missing_information.length > 0 && <p className="mt-2 text-xs text-slate-500">No evidence yet: {c.missing_information.join(", ")}</p>}
+            {c.missing_information.length > 0 && <p className="mt-2 text-xs text-slate-500">No proof yet: {c.missing_information.join(", ")}</p>}
           </Details>
         </div>
       )}
@@ -248,7 +249,7 @@ export default function Candidates() {
   const strong = a!.candidates.filter((x) => x.best_fit.score >= 65).length;
   return (
     <div className="space-y-5">
-      <PageHeader letter="E" title="Candidates" question="People who have already solved these problems.">
+      <PageHeader title="Candidates" question="People who have already solved these problems.">
         <a className="btn-secondary !py-1.5 text-xs" href="/api/ats-export?format=csv"><Download className="h-3.5 w-3.5" /> Export Ready-for-ATS</a>
       </PageHeader>
       <div className="grid gap-3 sm:grid-cols-4">
@@ -257,7 +258,7 @@ export default function Candidates() {
         <Stat label="In review" value={count("evidence_review")} />
         <Stat label="Ready for ATS" value={count("ready_for_ats")} />
       </div>
-      <div className="flex items-center gap-2 text-xs text-fuchsia-800"><Info className="h-3.5 w-3.5" /> Demo profiles are synthetic. Scores count only evidence of what someone built; job titles score zero.</div>
+      <div className="flex items-center gap-2 text-xs text-fuchsia-800"><Info className="h-3.5 w-3.5" /> Demo profiles are made up. Scores count only what someone has actually built or delivered; job titles count for nothing.</div>
       <div className="grid gap-5 lg:grid-cols-5">
         <Card className="lg:col-span-2 !p-0">
           <div className="flex items-center gap-2 border-b border-slate-100 px-3 pt-3 text-xs text-slate-500">
@@ -267,7 +268,7 @@ export default function Candidates() {
             ))}
           </div>
           <div className="flex flex-wrap gap-1 border-b border-slate-100 p-3">
-            {["", "Discovered", "Evidence review", "Verified", "Ready for ATS"].map((s) => (
+            {["", ...STEPS.map((k) => STATUS[k].label)].map((s) => (
               <button key={s} onClick={() => setQ(s)} className={clsx("chip", q === s ? "bg-ink-900 text-white" : "bg-slate-100 text-slate-600")}>{s || "All"}</button>
             ))}
           </div>

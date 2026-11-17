@@ -40,7 +40,7 @@ export default function Architecture() {
   const { meta } = useApp();
   return (
     <div className="space-y-6">
-      <PageHeader title="Architecture & Data" question="How the engine reasons, what it stores, and the guardrails it enforces." />
+      <PageHeader title="How it works" question="How the engine reasons, what it stores, and the guardrails it enforces." />
       <Card title="Reasoning chain" subtitle="Deterministic and explainable: every score in the UI shows its drivers">
         <div className="flex flex-wrap items-stretch gap-2">
           {PIPELINE.map(([t, d], i) => (

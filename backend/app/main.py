@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from . import db
 from .connectors import ashby, cognition_blog
-from .engine import analysis, kb as kb_mod, report
+from .engine import journey, analysis, kb as kb_mod, report
 from .engine import builders
 from .engine import candidates as cand_engine
 from .seed import load as seed_load
@@ -92,7 +92,8 @@ def meta():
     with db.session() as conn:
         kb = _kb(conn)
         return {
-            "scenarios": [{"id": s["id"], "name": s["name"], "hypothesis": s["data"]["hypothesis"]} for s in kb.scenarios.values()],
+            "scenarios": [{"id": s["id"], "name": s["name"], "hypothesis": s["data"]["hypothesis"],
+                           "goal": journey.GOALS.get(s["id"], (s["name"],))[0]} for s in kb.scenarios.values()],
             "segments": [{"id": s["id"], "name": s["name"]} for s in kb.segments.values()],
             "capabilities": [{k: c[k] for k in ("id", "name", "category", "scarcity")} for c in kb.capabilities.values()],
             "markets": ["SG", "AU", "JP", "IN", "KR"],

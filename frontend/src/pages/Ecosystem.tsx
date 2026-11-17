@@ -48,16 +48,16 @@ export default function Ecosystem() {
   const top = [...a!.ecosystem].sort((x, y) => y.effort_share - x.effort_share)[0];
   return (
     <div className="space-y-5">
-      <PageHeader letter="D" title="Talent Map" question="Where does this talent work today?">
+      <PageHeader title="Talent sources" question="Where does this talent work today?">
         <EvidenceBadge c="market_intel" />
       </PageHeader>
       <Takeaway title={`Look beyond AI competitors: ${Math.round((1 - direct) * 100)}% of search effort goes to other talent pools.`}>
         Largest pool: {POOL[top.pool_type].label} ({Math.round(top.effort_share * 100)}%). Red flags mark Cognition customers, partners and competitors, so approach those carefully.
       </Takeaway>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-slate-500">View by capability:</span>
+        <span className="text-xs font-medium text-slate-500">View by skill:</span>
         <select className="input max-w-sm" value={cap} onChange={(e) => setCap(e.target.value)}>
-          <option value="all">All capabilities</option>
+          <option value="all">All skills</option>
           {caps.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>

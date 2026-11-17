@@ -15,8 +15,14 @@
    - Title-only evidence weighs 0. Unverified evidence weighs 0.5. Rejected evidence weighs 0.
    - The status machine enforces the Verified and Ready-for-ATS gates.
    - Also generates validation questions.
-5. **analysis.py**: runs the full chain for one scenario.
-6. **report.py**: builds the 11-section executive report. Every line carries an evidence class and its citations.
+5. **journey.py**: turns the analysis into the 5-step hiring plan shown first in the app (Business goal → Key hires → Where to hire → Talent map → Shortlist).
+   - Each scenario gets a plain-language goal and success outcomes (`GOALS`).
+   - Key hires are the top 6 role types, with timing from their most urgent skill and live Ashby openings.
+   - Talent map: role type × country. Talent depth is estimated from tracked companies in that country (exact market counts fully, APAC/global presence counts 0.5) weighted by how much their skills overlap the role, normalised to 0–100. It is market insight, not a headcount.
+   - Country priority = 50% goal weight + 50% talent depth; the top 3 countries in the goal are recommended. Target companies exclude direct AI competitors.
+   - Shortlist: pipeline candidates ranked by 0.8 × past-work fit (title-only still scores 0), plus +10 for a top-2 country, +6 for a targeted talent area and +4 for a target company; Find-builders leads matched on skills. Suggestions only.
+6. **analysis.py**: runs the full chain for one scenario.
+7. **report.py**: builds the 11-section executive report. Every line carries an evidence class and its citations.
 
 ## Source integrations
 

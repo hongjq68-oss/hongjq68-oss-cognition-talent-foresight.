@@ -30,9 +30,9 @@ export default function Radar() {
   const topMarkets = Object.entries(sc.market_weights).sort((x, y) => y[1] - x[1]).filter(([, w]) => w > 0).slice(0, 3).map(([m]) => MARKET_NAMES[m] || m);
   return (
     <div className="space-y-5">
-      <PageHeader letter="A" title="Growth Radar" question="Where is Cognition heading, and what's the evidence?" />
+      <PageHeader title="Growth signals" question="Where is Cognition heading, and how do we know?" />
       <Takeaway title={`${a!.radar.drivers.length} public signals point to growth in ${topMarkets.join(", ")}.`}>
-        Cognition already has {h.in_scenario_markets} open roles in these markets. Scenario: {sc.name} <span className="text-slate-400">(a hypothesis, not a stated plan)</span>
+        Cognition already has {h.in_scenario_markets} open roles in these markets. Scenario: {sc.name} <span className="text-slate-400">(our assumption, not a stated plan)</span>
       </Takeaway>
       <div className="grid gap-3 md:grid-cols-4">
         <Stat label="Supporting signals" value={a!.radar.drivers.length} />
@@ -41,7 +41,7 @@ export default function Radar() {
         <Stat label="Role types already hiring" value={Object.keys(h.by_archetype).length} />
       </div>
       <div className="grid gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2" title="Signals behind this scenario" right={<Details label="What would change"><List items={sc.business_changes} /></Details>}>
+        <Card className="lg:col-span-2" title="Signals behind this goal" right={<Details label="What would change"><List items={sc.business_changes} /></Details>}>
           {drivers.map((s) => <SignalRow key={s.id} s={s} />)}
           {moreDrivers}
         </Card>

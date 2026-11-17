@@ -2,7 +2,7 @@
 from datetime import date
 
 from . import candidates as cand_engine
-from . import forecast, pools
+from . import forecast, journey, pools
 from .kb import KB
 
 
@@ -23,7 +23,8 @@ def run(kb: KB, conn, scenario_id: str | None, overrides: dict | None = None, to
     best = cand_engine.best_jobs(jobs)
     for c in shortlist:
         c["best_job"] = best.get(c["id"])
-    return {"scenario": sc, "radar": radar, "problems": problems, "capabilities": caps, "archetypes": archetypes,
+    plan = journey.build(kb, conn, sc, caps, archetypes, problems, today=today)
+    return {"journey": plan, "scenario": sc, "radar": radar, "problems": problems, "capabilities": caps, "archetypes": archetypes,
             "ecosystem": ecosystem, "capability_pools": cap_pools, "strategies": strategies, "candidates": shortlist,
             "open_jobs": jobs,
             "segments": {k: v for k, v in kb.segments.items() if sc["segment_weights"].get(k, 0) > 0}}

@@ -86,6 +86,7 @@ export interface Candidate {
 export interface Segment { id: string; name: string; data: Record<string, string[]> }
 
 export interface Analysis {
+  journey: Journey;
   scenario: Scenario; radar: { drivers: Signal[]; related: Signal[]; hiring: Hiring }; problems: Problem[];
   capabilities: Capability[]; archetypes: Archetype[]; ecosystem: PoolGroup[];
   capability_pools: Record<string, Record<PoolType, { label: string; organisations: Org[] }>>;
@@ -93,7 +94,7 @@ export interface Analysis {
 }
 
 export interface Meta {
-  scenarios: { id: string; name: string; hypothesis: string }[];
+  scenarios: { id: string; name: string; hypothesis: string; goal: string }[];
   segments: { id: string; name: string }[];
   capabilities: { id: string; name: string; category: string; scarcity: number }[];
   markets: string[];
@@ -129,3 +130,21 @@ export interface BuilderOverview {
   sources: Record<string, { ready: boolean; authenticated?: boolean; note?: string | null }>;
 }
 export interface InvestigateResult { candidate_id: string; sources: SourceReport; items_found: number; mapped: number; added: number; unmapped: number }
+
+export interface HireWhen { label: string; tone: "now" | "soon" | "later"; start_by: string | null; need_by: string | null }
+export interface HireCountry { market: string; name: string; goal_weight: number; supply: number; priority: number; open_roles: number }
+export interface MapCompany { name: string; area: string; pool_type: PoolType; local: boolean; sensitivity: string; teams: string[]; market?: string }
+export interface HirePerson extends ShortlistEntry { match: number; reasons: string[] }
+export interface HireBuilder { lead_id: string; display_name: string; source: string; profile_url: string | null; market: string | null; location: string | null; match: number; work: string[]; skills: string[] }
+export interface KeyHire {
+  archetype_id: string; name: string; summary: string; score: number; why: string | null; when: HireWhen;
+  must_have: string[]; open_roles: number; open_role_links: { title: string; url: string; market: string }[]; headcount: number;
+  where: HireCountry[]; areas: { pool_type: PoolType; label: string }[]; companies: MapCompany[]; also_consider: string[];
+  shortlist: HirePerson[]; builders: HireBuilder[];
+}
+export interface MapCell { market: string; supply: number; goal_weight: number; in_pipeline: number; companies: MapCompany[]; areas: { pool_type: PoolType; label: string; count: number }[] }
+export interface Journey {
+  goal: { title: string; outcomes: string[]; story: string; what_changes: string[]; risks: string[]; customer_problems: string[]; top_markets: string[] };
+  hires: KeyHire[];
+  map: { markets: { id: string; name: string; goal_weight: number }[]; rows: { archetype_id: string; name: string; cells: MapCell[] }[] };
+}

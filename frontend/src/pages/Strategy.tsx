@@ -6,11 +6,11 @@ import { useApp } from "../state";
 import { Card, ClassBadge, EvidenceBadge, List, PageHeader, PoolBadge, Score, Tabs, Takeaway, useShowMore } from "../components/ui";
 import type { ShortlistEntry } from "../types";
 
-const STATUS_LABEL: Record<string, string> = { discovered: "Discovered", evidence_review: "In review", verified: "Verified", ready_for_ats: "Ready for ATS" };
+const STATUS_LABEL: Record<string, string> = { discovered: "New", evidence_review: "Checking", verified: "Checked", ready_for_ats: "Ready for ATS" };
 const tier = (v: number) => (v >= 65 ? "Strong" : v >= 45 ? "Possible" : "Stretch");
 
 function Shortlist({ items }: { items: ShortlistEntry[] }) {
-  if (!items.length) return <div className="text-sm text-slate-500">No candidate has evidence for this role yet. Use the search strings to find people.</div>;
+  if (!items.length) return <div className="text-sm text-slate-500">Nobody has matching past work for this role yet. Use the search strings to find people.</div>;
   return (
     <div className="divide-y divide-slate-100">
       {items.map((x, i) => (
@@ -52,7 +52,7 @@ export default function Strategy() {
   const topArch = a!.archetypes.find((x) => x.id === a!.strategies[0]?.archetype_id);
   return (
     <div className="space-y-5">
-      <PageHeader letter="F" title="Hiring Strategy" question="Who to hire, where to look and when to start.">
+      <PageHeader title="Sourcing playbook" question="Who to hire, where to look and when to start.">
         <EvidenceBadge c="recommendation" />
       </PageHeader>
       <Takeaway title={`Top priority: ${topArch?.name}.${timeline[0] ? ` First search starts ${timeline[0].start_search_by}.` : ""}`}>
@@ -77,13 +77,13 @@ export default function Strategy() {
             {tab === "profile" && (
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <div className="label">Must-have capabilities</div>
+                  <div className="label">Must-have skills</div>
                   {arch.capabilities.map((c) => (
                     <div key={c.id} className="py-0.5 text-sm text-slate-700">• {c.name}</div>
                   ))}
                 </div>
                 <div>
-                  <div className="label">Look for evidence of</div>
+                  <div className="label">Look for proof of</div>
                   <div className="flex flex-wrap gap-1">{st.evidence_to_look_for.map((e) => <span key={e} className="chip bg-emerald-50 text-emerald-700">{e}</span>)}</div>
                   <div className="label mt-4">How to assess</div>
                   <List items={arch.assessment} />
@@ -114,7 +114,7 @@ export default function Strategy() {
             )}
           </div>
         </Card>
-          <Card title={`Auto-shortlist (${st.shortlist.length})`} subtitle="Top matches by evidence of what they built. Suggestions only; a recruiter verifies before anyone is contacted." right={<EvidenceBadge c="recommendation" />}>
+          <Card title={`Auto-shortlist (${st.shortlist.length})`} subtitle="Top matches by what they've built. Suggestions only; a recruiter checks before anyone is contacted." right={<EvidenceBadge c="recommendation" />}>
             <Shortlist items={st.shortlist} />
           </Card>
         </div>

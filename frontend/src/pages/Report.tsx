@@ -24,7 +24,7 @@ export default function ReportPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Executive Talent Strategy</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Executive summary</div>
           <h1 className="text-2xl font-semibold text-slate-900">{r.title.replace("Executive Talent Strategy — ", "")}</h1>
         </div>
         <div className="flex shrink-0 gap-2 whitespace-nowrap print:hidden">

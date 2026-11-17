@@ -54,10 +54,10 @@ export default function Forecast() {
   const late = now.filter((c) => c.start_search_by && c.start_search_by < today).length;
   return (
     <div className="space-y-5">
-      <PageHeader letter="C" title="Capability Forecast" question="What skills will we need, and when?">
+      <PageHeader title="Skills forecast" question="What skills will we need, and when?">
         <EvidenceBadge c="prediction" />
       </PageHeader>
-      <Takeaway title={`Hire for ${now.length} capabilities now${late ? `: ${late} searches are already late` : ""}.`}>
+      <Takeaway title={`Hire for ${now.length} skills now${late ? `: ${late} searches are already late` : ""}.`}>
         {counts.emerging || 0} more are emerging within 12 months, and {counts.strategic || 0} are longer-term bets.
       </Takeaway>
       {now.length > 0 && (
@@ -90,7 +90,7 @@ export default function Forecast() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-slate-500">
-              <th className="py-2">Capability</th>
+              <th className="py-2">Skill</th>
               {H.map((h) => <th key={h} className="w-16 text-center">{h}</th>)}
               <th className="pl-3">Forecast</th><th>Start search</th>
             </tr>

@@ -4,11 +4,11 @@ import { useState, type ReactNode } from "react";
 import type { Citation, EvidenceClass, Classification, PoolType } from "../types";
 
 export const EVIDENCE: Record<EvidenceClass, { label: string; cls: string }> = {
-  verified_fact: { label: "Verified fact", cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
-  market_intel: { label: "Market intelligence", cls: "bg-sky-50 text-sky-700 ring-sky-200" },
-  hypothesis: { label: "Strategic hypothesis", cls: "bg-amber-50 text-amber-800 ring-amber-200" },
-  prediction: { label: "Engine prediction", cls: "bg-violet-50 text-violet-700 ring-violet-200" },
-  recommendation: { label: "Recruiter recommendation", cls: "bg-slate-100 text-slate-700 ring-slate-300" },
+  verified_fact: { label: "Public fact", cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
+  market_intel: { label: "Market insight", cls: "bg-sky-50 text-sky-700 ring-sky-200" },
+  hypothesis: { label: "Assumption", cls: "bg-amber-50 text-amber-800 ring-amber-200" },
+  prediction: { label: "Forecast", cls: "bg-violet-50 text-violet-700 ring-violet-200" },
+  recommendation: { label: "Recommendation", cls: "bg-slate-100 text-slate-700 ring-slate-300" },
 };
 
 export function EvidenceBadge({ c }: { c: EvidenceClass }) {

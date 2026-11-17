@@ -83,7 +83,7 @@ function Monitors({ o, caps, reload }: { o: BuilderOverview; caps: Record<string
   const leads = o.leads.filter((l) => !filter || l.monitor_id === filter);
   return (
     <div className="grid gap-5 lg:grid-cols-5">
-      <Card className="lg:col-span-2" title="Monitors" subtitle={`Re-run every ${o.interval_hours}h automatically. Unreviewed leads are deleted after ${o.lead_ttl_days} days.`}>
+      <Card className="lg:col-span-2" title="Saved searches" subtitle={`Runs every ${o.interval_hours}h automatically. People not reviewed are removed after ${o.lead_ttl_days} days.`}>
         <div className="space-y-2">
           {o.monitors.map((m) => (
             <div key={m.id} className={clsx("rounded-lg border p-3", filter === m.id ? "border-brand-300 bg-brand-50/40" : "border-slate-200")}>
@@ -102,18 +102,18 @@ function Monitors({ o, caps, reload }: { o: BuilderOverview; caps: Record<string
                 {m.leads_promoted > 0 && <span className="text-slate-500">{m.leads_promoted} added</span>}
               </div>
               {last?.id === m.id && <div className="mt-2 space-y-1 text-[11px] text-slate-600"><div>{last.text}</div><SourceResult r={last.r} /></div>}
-              <Details label="Searches" className="mt-1">
+              <Details label="Search terms" className="mt-1">
                 <div className="space-y-0.5 text-[11px] text-slate-500">{Object.entries(m.queries).map(([k, v]) => <div key={k}><b>{SRC[k]}:</b> {v}</div>)}</div>
               </Details>
             </div>
           ))}
         </div>
       </Card>
-      <Card className="lg:col-span-3" title={`Leads to review (${leads.length})`} subtitle="Builders found from public work. Suggestions only: nobody is contacted, and evidence enters unverified.">
+      <Card className="lg:col-span-3" title={`People to review (${leads.length})`} subtitle="Builders found from public work. Suggestions only: nobody is contacted, and their work is marked “not checked yet”.">
         {flash && <div className="mb-2 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-800">{flash} · <Link to="/candidates" className="underline">open Candidates</Link></div>}
         <div className="space-y-2">
           {leads.map((l) => <LeadCard key={l.id} l={l} caps={caps} onDone={async (msg) => { setFlash(msg); await reload(); await reloadAnalysis(); }} />)}
-          {!leads.length && <div className="text-sm text-slate-400">No leads yet. Run a monitor.</div>}
+          {!leads.length && <div className="text-sm text-slate-400">Nobody yet. Run a search.</div>}
         </div>
       </Card>
     </div>
@@ -142,7 +142,7 @@ function Investigate({ reload }: { reload: () => Promise<void> }) {
   );
   return (
     <div className="grid gap-5 lg:grid-cols-5">
-      <Card className="lg:col-span-3" title="Investigate a person" subtitle="Enter public handles. The agent collects what they built and attaches it as unverified evidence.">
+      <Card className="lg:col-span-3" title="Look up a person" subtitle="Enter public usernames or links. We gather what they've built and add it to their profile as “not checked yet”.">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-xs text-slate-600">Existing candidate
             <select value={f.candidate_id} onChange={set("candidate_id")} className="mt-0.5 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm">
@@ -178,7 +178,7 @@ function Investigate({ reload }: { reload: () => Promise<void> }) {
             className="mt-0.5 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
         </label>
         <div className="mt-3 flex items-center gap-2">
-          <button className="btn-primary" onClick={go} disabled={busy}><Search className="h-4 w-4" /> {busy ? "Collecting…" : "Collect evidence"}</button>
+          <button className="btn-primary" onClick={go} disabled={busy}><Search className="h-4 w-4" /> {busy ? "Collecting…" : "Find their work"}</button>
           {err && <span className="text-xs text-rose-600">{err}</span>}
         </div>
       </Card>
@@ -187,14 +187,14 @@ function Investigate({ reload }: { reload: () => Promise<void> }) {
           <div className="space-y-3 text-sm">
             <div className="grid grid-cols-3 gap-2">
               <Stat label="Public items" value={res.items_found} />
-              <Stat label="Mapped to capabilities" value={res.mapped} />
-              <Stat label="Added (unverified)" value={res.added} />
+              <Stat label="Matched to skills" value={res.mapped} />
+              <Stat label="Added (not checked yet)" value={res.added} />
             </div>
             <SourceResult r={res.sources} />
             {res.unmapped > 0 && <p className="text-xs text-slate-500">{res.unmapped} items didn't match any capability and were skipped.</p>}
-            <Link to={`/candidates?c=${res.candidate_id}`} className="btn-secondary !py-1.5 text-xs">Review evidence in Candidates</Link>
+            <Link to={`/candidates?c=${res.candidate_id}`} className="btn-secondary !py-1.5 text-xs">Check their work in Candidates</Link>
           </div>
-        ) : <p className="text-sm text-slate-500">Nothing collected yet.</p>}
+        ) : <p className="text-sm text-slate-500">Nothing found yet.</p>}
       </Card>
     </div>
   );
@@ -212,22 +212,22 @@ export default function Builders() {
   const off = Object.entries(o.sources).filter(([, v]) => !v.ready || v.note);
   return (
     <div className="space-y-5">
-      <PageHeader letter="G" title="Builder Evidence" question="Find people by what they have built, not their job title." />
+      <PageHeader title="Find builders" question="Find people by what they have built, not their job title." />
       <Takeaway title={`${o.leads.length} builders to review${fresh ? `, ${fresh} new since the last runs` : ""}`}>
-        Evidence comes from GitHub, Show HN launches, dev.to, arXiv, Hugging Face, npm, blogs and pasted patent or demo links.
+        We look at GitHub, Show HN launches, dev.to, arXiv, Hugging Face, npm, blogs and pasted patent or demo links.
       </Takeaway>
       <div className="grid gap-3 sm:grid-cols-4">
-        <Stat label="Monitors" value={o.monitors.length} />
-        <Stat label="Leads to review" value={o.leads.length} />
+        <Stat label="Saved searches" value={o.monitors.length} />
+        <Stat label="People to review" value={o.leads.length} />
         <Stat label="Added to candidates" value={o.monitors.reduce((n, m) => n + m.leads_promoted, 0)} />
         <Stat label="Last run" value={<span className="text-base">{ago(o.runs[0]?.at || null)}</span>} />
       </div>
       {off.length > 0 && (
-        <Details label="Source limits">
+        <Details label="What we can and can't search">
           <ul className="space-y-0.5 text-xs text-slate-600">{off.map(([k, v]) => <li key={k}><b>{SRC[k] || k.replace("_", " ")}:</b> {v.note}</li>)}</ul>
         </Details>
       )}
-      <Tabs value={tab} onChange={setTab} tabs={[{ id: "monitors", label: "Discovery monitoring" }, { id: "investigate", label: "Investigate a person" }]} />
+      <Tabs value={tab} onChange={setTab} tabs={[{ id: "monitors", label: "Daily search" }, { id: "investigate", label: "Look up a person" }]} />
       {tab === "monitors" ? <Monitors o={o} caps={caps} reload={reload} /> : <Investigate reload={reload} />}
     </div>
   );

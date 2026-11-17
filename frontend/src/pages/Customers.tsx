@@ -20,7 +20,7 @@ export default function Customers() {
   const top = a!.problems[0];
   return (
     <div className="space-y-5">
-      <PageHeader letter="B" title="Customer Problems" question="Which customers drive growth, and what do they need solved?" />
+      <PageHeader title="Customer problems" question="Which customers drive growth, and what do they need solved?" />
       {top && <Takeaway title={`Biggest opportunity: ${top.name}`}>{top.segment}. {top.capabilities.length} capabilities are needed to deliver it.</Takeaway>}
       <div className="flex flex-wrap gap-2">
         {[{ id: "all", name: "All" }, ...segs].map((x) => (
@@ -72,7 +72,7 @@ export default function Customers() {
               <div><div className="label">How Cognition could help</div><List items={p.cognition_use_cases} /></div>
               <div><div className="label">Adoption barriers</div><List items={p.adoption_barriers} /></div>
               <div>
-                <div className="label">Why each capability</div>
+                <div className="label">Why each skill</div>
                 <div className="space-y-1">
                   {p.capabilities.map((c) => (
                     <div key={c.id} className="text-sm" title={c.rationale || ""}>

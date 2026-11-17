@@ -67,7 +67,7 @@ def to_evidence(kb: KB, item: dict) -> dict | None:
         return None
     etype, verb = KIND[item["kind"]]
     m = item["metrics"]
-    reach = next((f" ({m[k]} {lbl})" for k, lbl in (("stars", "stars"), ("points", "HN points"), ("likes", "likes"),
+    reach = next((f" ({m[k]} {lbl[:-1] if m[k] == 1 and lbl.endswith('s') else lbl})" for k, lbl in (("stars", "stars"), ("points", "HN points"), ("likes", "likes"),
                                                     ("reactions", "reactions")) if m.get(k)), "")
     claim = f"{verb} {item['title']}{reach}"
     problem = (item["text"].split(". ")[0] or item["title"])[:240]

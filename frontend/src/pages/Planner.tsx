@@ -40,11 +40,11 @@ export default function Planner() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Scenario Planner" question="Move the sliders to see how hiring needs change."><EvidenceBadge c="hypothesis" /></PageHeader>
-      <Takeaway title={deltas.length ? `Your changes move ${deltas.length} capabilities: ${up} up, ${down} down.` : "No changes yet. Adjust the sliders, then click Recompute."} />
+      <PageHeader title="What-if planner" question="Move the sliders to see how hiring needs change."><EvidenceBadge c="hypothesis" /></PageHeader>
+      <Takeaway title={deltas.length ? `Your changes move ${deltas.length} skills: ${up} up, ${down} down.` : "No changes yet. Adjust the sliders, then click Recompute."} />
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card title="Adjust the scenario" subtitle="0 = ignore · 1 = full focus">
-          <label className="label">Scenario name</label>
+        <Card title="Adjust the goal" subtitle="0 = ignore · 1 = full focus">
+          <label className="label">Goal name</label>
           <input className="input mb-4" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="label">Customer segments</div>
           <div className="space-y-2">{meta!.segments.map((s) => <Slider key={s.id} label={s.name} value={segW[s.id] || 0} onChange={(v) => setSegW({ ...segW, [s.id]: v })} />)}</div>
@@ -65,7 +65,7 @@ export default function Planner() {
           </Card>
           <Card title="What changed vs the preset">
             {deltas.length === 0 ? <div className="text-sm text-slate-500">Nothing yet.</div> : <table className="w-full text-sm">
-              <thead><tr className="text-left text-xs text-slate-500"><th className="py-1">Capability</th><th>Demand</th><th>Change</th><th>Forecast</th><th>Start search</th></tr></thead>
+              <thead><tr className="text-left text-xs text-slate-500"><th className="py-1">Skill</th><th>Demand</th><th>Change</th><th>Forecast</th><th>Start search</th></tr></thead>
               <tbody>
                 {deltas.map(({ c, d, was }) => (
                   <tr key={c.id} className="border-t border-slate-100">
