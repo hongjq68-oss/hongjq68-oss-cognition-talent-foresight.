@@ -8,7 +8,9 @@ interface Ctx {
   overrides: Overrides;
   loading: boolean;
   error: string | null;
+  company: string;
   setScenario: (id: string) => void;
+  setCompany: (id: string) => void;
   setOverrides: (o: Overrides) => void;
   reload: () => Promise<void>;
   reloadMeta: () => Promise<void>;
@@ -19,7 +21,9 @@ const C = createContext<Ctx | null>(null);
 export function AppState({ children }: { children: ReactNode }) {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [overrides, setOverrides] = useState<Overrides>({ scenario_id: "apac_banking" });
+  const [company, setCompanyId] = useState<string>(() => localStorage.getItem("company") || "cognition");
+  const [overrides, setOverridesRaw] = useState<Overrides>({ company, scenario_id: company === "cognition" ? "apac_banking" : `${company}:balanced` });
+  const setOverrides = useCallback((o: Overrides) => setOverridesRaw({ ...o, company }), [company]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,13 +38,18 @@ export function AppState({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, [overrides]);
-  const reloadMeta = useCallback(async () => setMeta(await api.meta()), []);
+  const reloadMeta = useCallback(async () => setMeta(await api.meta(company)), [company]);
+  const setCompany = useCallback((id: string) => {
+    localStorage.setItem("company", id);
+    setCompanyId(id);
+    setOverridesRaw({ company: id, scenario_id: id === "cognition" ? "apac_banking" : `${id}:balanced` });
+  }, []);
 
   useEffect(() => { reloadMeta().catch((e) => setError(String(e))); }, [reloadMeta]);
   useEffect(() => { reload(); }, [reload]);
 
   return (
-    <C.Provider value={{ meta, analysis, overrides, loading, error, reload, reloadMeta, setOverrides,
+    <C.Provider value={{ meta, analysis, overrides, loading, error, reload, reloadMeta, setOverrides, company, setCompany,
       setScenario: (id) => setOverrides({ scenario_id: id }) }}>
       {children}
     </C.Provider>
@@ -53,4 +62,8 @@ export function useApp() {
   return c;
 }
 
-export const isCustom = (o: Overrides) => !!(o.segment_weights || o.market_weights || o.capability_boosts || o.name);
+export const isCustom = (o: Overrides): boolean => !!(o.segment_weights || o.market_weights || o.capability_boosts || o.name);
+
+export function useCompanyName(): string {
+  return useApp().meta?.company?.name || "Cognition";
+}

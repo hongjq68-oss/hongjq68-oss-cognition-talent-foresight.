@@ -2,7 +2,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import { Briefcase, Copy, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Card, ClassBadge, EvidenceBadge, List, PageHeader, PoolBadge, Score, Tabs, Takeaway, useShowMore } from "../components/ui";
 import type { ShortlistEntry } from "../types";
 
@@ -41,6 +41,7 @@ function Shortlist({ items }: { items: ShortlistEntry[] }) {
 }
 
 export default function Strategy() {
+  const cn = useCompanyName();
   const { analysis: a } = useApp();
   const [sel, setSel] = useState(a!.strategies[0]?.archetype_id);
   const arch = a!.archetypes.find((x) => x.id === sel)!;
@@ -119,7 +120,7 @@ export default function Strategy() {
           </Card>
         </div>
         <div className="space-y-6">
-          <Card title="Open Cognition roles" right={<EvidenceBadge c="verified_fact" />}>
+          <Card title={`Open ${cn} roles`} right={<EvidenceBadge c="verified_fact" />}>
             {arch.open_roles.length === 0 ? <div className="text-xs text-slate-500">No open role yet. Build the pipeline early.</div> :
               arch.open_roles.map((r) => <a key={r.url} href={r.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-brand-700 hover:underline"><Briefcase className="h-3 w-3" />{r.title}</a>)}
           </Card>

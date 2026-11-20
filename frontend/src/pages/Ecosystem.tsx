@@ -1,6 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Card, Details, EvidenceBadge, PageHeader, POOL, Sensitivity, Takeaway, useShowMore } from "../components/ui";
 import type { Org, PoolType } from "../types";
 
@@ -15,7 +15,7 @@ function OrgCard({ o, capName }: { o: Org; capName: (id: string) => string }) {
       <p className="mt-1 line-clamp-2 text-xs text-slate-600">{o.why_relevant}</p>
       <Details className="mt-1.5">
         <div className="space-y-1 text-xs text-slate-500">
-          <div><b>Value to Cognition:</b> {o.value_to_cognition}</div>
+          <div><b>Why it matters:</b> {o.value_to_cognition}</div>
           <div><b>Teams:</b> {o.teams.join("; ")}</div>
           <div><b>Search hints:</b> {o.starting_titles.join(", ")}</div>
           {o.capabilities && <div className="flex flex-wrap gap-1">{o.capabilities.map((c) => <span key={c} className="chip bg-slate-100 text-slate-600">{capName(c)}</span>)}</div>}
@@ -39,6 +39,7 @@ function PoolColumn({ g, capName }: { g: { pool_type: PoolType; label: string; o
 }
 
 export default function Ecosystem() {
+  const cn = useCompanyName();
   const { analysis: a } = useApp();
   const capName = (id: string) => a!.capabilities.find((c) => c.id === id)?.name || id;
   const caps = a!.capabilities.filter((c) => a!.capability_pools[c.id]);
@@ -52,7 +53,7 @@ export default function Ecosystem() {
         <EvidenceBadge c="market_intel" />
       </PageHeader>
       <Takeaway title={`Look beyond AI competitors: ${Math.round((1 - direct) * 100)}% of search effort goes to other talent pools.`}>
-        Largest pool: {POOL[top.pool_type].label} ({Math.round(top.effort_share * 100)}%). Red flags mark Cognition customers, partners and competitors, so approach those carefully.
+        Largest pool: {POOL[top.pool_type].label} ({Math.round(top.effort_share * 100)}%). Red flags mark {cn} customers, partners and competitors, so approach those carefully.
       </Takeaway>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium text-slate-500">View by skill:</span>

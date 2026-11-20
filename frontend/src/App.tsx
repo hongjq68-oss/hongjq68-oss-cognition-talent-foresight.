@@ -9,6 +9,7 @@ import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import { api } from "./api";
 import { AppState, isCustom, useApp } from "./state";
+import { CompanySwitcher } from "./components/CompanySwitcher";
 import Radar_ from "./pages/Radar";
 import Customers from "./pages/Customers";
 import Forecast from "./pages/Forecast";
@@ -45,12 +46,16 @@ const navCls = ({ isActive }: { isActive: boolean }) => clsx("flex items-center 
 const Group = ({ label }: { label: string }) => <div className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>;
 
 function Shell() {
-  const { meta, overrides, setScenario, loading, error, analysis, reload, reloadMeta } = useApp();
+  const { meta, overrides, setScenario, loading, error, analysis, reload, reloadMeta, company } = useApp();
+  const cname = meta?.company?.name || "Cognition";
   const [refreshing, setRefreshing] = useState(false);
   const custom = isCustom(overrides);
   const refresh = async () => {
     setRefreshing(true);
-    try { await api.refresh(); await reloadMeta(); await reload(); } finally { setRefreshing(false); }
+    try {
+      if (company === "cognition") await api.refresh(); else await api.refreshCompany(company);
+      await reloadMeta(); await reload();
+    } finally { setRefreshing(false); }
   };
   return (
     <div className="flex min-h-screen">
@@ -59,7 +64,7 @@ function Shell() {
           <Gauge className="h-6 w-6 text-brand-300" />
           <div>
             <div className="text-sm font-semibold text-white">Talent Foresight</div>
-            <div className="text-[11px] text-slate-400">Cognition · APAC talent intelligence</div>
+            <div className="text-[11px] text-slate-400">{cname} · APAC talent intelligence</div>
           </div>
         </div>
         <nav className="space-y-0.5 px-3">
@@ -81,6 +86,7 @@ function Shell() {
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-200 bg-white/90 px-6 py-3 backdrop-blur">
+          <CompanySwitcher />
           <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Business goal</span>
           <select className="input max-w-xl" value={custom ? "custom" : overrides.scenario_id || ""} onChange={(e) => setScenario(e.target.value)}>
             {custom && <option value="custom">Custom: {analysis?.journey.goal.title}</option>}
@@ -90,7 +96,7 @@ function Shell() {
           {error && <span className="text-xs text-rose-600">{error}</span>}
           <div className="ml-auto flex items-center gap-3 text-xs text-slate-500">
             {meta && <span>{meta.counts.jobs} open roles · {meta.counts.organisations} companies tracked</span>}
-            <button className="btn-secondary !py-1.5" onClick={refresh} disabled={refreshing} title="Pull the public Cognition blog index and job board">
+            <button className="btn-secondary !py-1.5" onClick={refresh} disabled={refreshing} title={`Pull ${cname}'s public job board and news again`}>
               <RefreshCw className={clsx("h-3.5 w-3.5", refreshing && "animate-spin")} /> Refresh data
             </button>
           </div>

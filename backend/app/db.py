@@ -11,7 +11,7 @@ DATA_DIR = Path(os.environ.get("FORESIGHT_DATA_DIR", ROOT.parent / "data"))
 DB_PATH = Path(os.environ.get("FORESIGHT_DB", DATA_DIR / "foresight.db"))
 
 # Rows owned by one company ('cognition', a generated company id, or '*' for the general library).
-COMPANY_SCOPED = ("sources", "signals", "job_postings", "scenarios", "archetypes", "segments", "customer_problems")
+COMPANY_SCOPED = ("signals", "sources", "job_postings", "scenarios", "archetypes", "segments", "customer_problems")
 
 JSON_COLUMNS = {
     "queries", "evidence", "board", "gaps",

@@ -21,7 +21,12 @@ export const builderApi = {
 };
 
 export const api = {
-  meta: () => req<Meta>("/api/meta"),
+  meta: (company = "cognition") => req<Meta>(`/api/meta?company=${encodeURIComponent(company)}`),
+  companies: () => req<import("./types").Company[]>("/api/companies"),
+  addCompany: (b: { name: string; website?: string; careers_url?: string; blog_url?: string }) =>
+    post<import("./types").Company & { jobs: number; apac_jobs: number; signals: number; goals: number }>("/api/companies", b),
+  refreshCompany: (id: string) => post<import("./types").Company>(`/api/companies/${encodeURIComponent(id)}/refresh`, {}),
+  removeCompany: (id: string) => req(`/api/companies/${encodeURIComponent(id)}`, { method: "DELETE" }),
   analysis: (o: Overrides) => post<Analysis>("/api/analysis", o),
   report: (o: Overrides) => post<Report>("/api/report", o),
   reportMd: (o: Overrides) => post<string>("/api/report.md", o),

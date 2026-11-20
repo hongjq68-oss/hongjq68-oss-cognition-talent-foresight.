@@ -1,10 +1,11 @@
 import clsx from "clsx";
 import { Target } from "lucide-react";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Card, Cite, Details, List, Stat, Takeaway } from "../components/ui";
 import { NextStep, StepHeader } from "../components/journey";
 
 export default function Goal() {
+  const cn = useCompanyName();
   const { analysis: a, meta, overrides, setScenario } = useApp();
   const j = a!.journey;
   const now = j.hires.filter((h) => h.when.tone === "now");
@@ -22,20 +23,26 @@ export default function Goal() {
           </button>
         ))}
       </div>
+      {j.goal.inferred && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <b>Suggested goal.</b> We inferred this from {cn}'s public jobs and news ({j.goal.basis.join("; ")}). Confirm it with the business before acting.
+          {(meta!.company?.gaps.length ?? 0) > 0 && <ul className="mt-1 list-disc pl-5 text-amber-800">{meta!.company!.gaps.map((g) => <li key={g}>{g}</li>)}</ul>}
+        </div>
+      )}
       <Takeaway title={j.goal.title}>
         To hit this goal we need {j.hires.length} key hires. {now.length} of them should start now.
       </Takeaway>
       <div className="grid gap-3 md:grid-cols-4">
         <Stat label="Key hires" value={j.hires.length} hint="Roles that move the goal" />
         <Stat label="Start now" value={now.length} hint={now.length ? `First: ${now[0].name}` : "Nothing urgent"} />
-        <Stat label="Open roles today" value={open} hint="Live on Cognition's job board" />
+        <Stat label="Open roles today" value={open} hint={`Live on ${cn}'s job board`} />
         <Stat label="Focus countries" value={j.goal.top_markets.length} hint={j.goal.top_markets.join(", ")} />
       </div>
       <div className="grid gap-5 md:grid-cols-2">
         <Card title="What success looks like">
           <List items={j.goal.outcomes} />
         </Card>
-        <Card title="Customer problems we must solve">
+        <Card title={j.goal.inferred ? "What the business must get right" : "Customer problems we must solve"}>
           <List items={j.goal.customer_problems} />
         </Card>
       </div>

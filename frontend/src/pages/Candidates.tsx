@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import clsx from "clsx";
 import { Check, X, RotateCcw, ExternalLink, Download, Info, Building2, Pencil, Briefcase, RefreshCw } from "lucide-react";
 import { api } from "../api";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Card, Details, MARKET_NAMES, PageHeader, PoolBadge, Score, Stat, Tabs } from "../components/ui";
 import type { Candidate, OpenJob } from "../types";
 
@@ -232,6 +232,7 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
 }
 
 export default function Candidates() {
+  const cn = useCompanyName();
   const { analysis: a, reload } = useApp();
   const [params] = useSearchParams();
   const [sel, setSel] = useState<string>(params.get("c") || a!.candidates[0]?.id);
@@ -280,7 +281,7 @@ export default function Candidates() {
           ) : (
             <div>
               <div className="flex flex-wrap items-center gap-1 px-3 py-2 text-[11px] text-slate-500">
-                <span>{a!.open_jobs.length} live APAC jobs from Cognition's Ashby board{pulled ? ` · pulled ${pulled.slice(0, 10)}` : ""}</span>
+                <span>{a!.open_jobs.length} live APAC jobs from {cn}'s careers board{pulled ? ` · pulled ${pulled.slice(0, 10)}` : ""}</span>
                 <button onClick={refresh} disabled={refreshing} className="inline-flex items-center gap-0.5 text-brand-700 hover:underline"><RefreshCw className={clsx("h-3 w-3", refreshing && "animate-spin")} /> Refresh</button>
               </div>
               <div className="flex flex-wrap gap-1 px-3 pb-2">

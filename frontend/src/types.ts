@@ -94,6 +94,7 @@ export interface Analysis {
 }
 
 export interface Meta {
+  company: Company | null;
   scenarios: { id: string; name: string; hypothesis: string; goal: string }[];
   segments: { id: string; name: string }[];
   capabilities: { id: string; name: string; category: string; scarcity: number }[];
@@ -106,7 +107,7 @@ export interface ReportItem { text: string; evidence_class: EvidenceClass; citat
 export interface Report { title: string; scenario_id: string; sections: { number: number; title: string; items: ReportItem[] }[]; evidence_labels: Record<EvidenceClass, string> }
 
 export interface Overrides {
-  scenario_id: string | null; name?: string; hypothesis?: string;
+  company?: string; scenario_id: string | null; name?: string; hypothesis?: string;
   segment_weights?: Record<string, number>; market_weights?: Record<string, number>; capability_boosts?: Record<string, number>;
 }
 
@@ -144,7 +145,22 @@ export interface KeyHire {
 }
 export interface MapCell { market: string; supply: number; goal_weight: number; in_pipeline: number; companies: MapCompany[]; areas: { pool_type: PoolType; label: string; count: number }[] }
 export interface Journey {
-  goal: { title: string; outcomes: string[]; story: string; what_changes: string[]; risks: string[]; customer_problems: string[]; top_markets: string[] };
+  goal: { title: string; outcomes: string[]; story: string; inferred: boolean; basis: string[]; what_changes: string[]; risks: string[]; customer_problems: string[]; top_markets: string[] };
   hires: KeyHire[];
   map: { markets: { id: string; name: string; goal_weight: number }[]; rows: { archetype_id: string; name: string; cells: MapCell[] }[] };
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  website: string | null;
+  careers_url: string | null;
+  board: { provider: string; slug: string } | null;
+  blog_feed: string | null;
+  description: string | null;
+  curated: number;
+  created_at: string;
+  refreshed_at: string | null;
+  gaps: string[];
+  apac_jobs?: number;
 }

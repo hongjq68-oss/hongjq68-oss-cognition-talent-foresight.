@@ -1,6 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Bar, Card, Cite, Details, EvidenceBadge, List, PageHeader, Takeaway, useShowMore } from "../components/ui";
 
 const FIELDS: [string, string][] = [
@@ -10,6 +10,7 @@ const FIELDS: [string, string][] = [
 ];
 
 export default function Customers() {
+  const cn = useCompanyName();
   const { analysis: a } = useApp();
   const segs = Object.values(a!.segments);
   const [seg, setSeg] = useState<string>("all");
@@ -31,7 +32,7 @@ export default function Customers() {
       </div>
       {s && (
         <Card title={`About ${s.name}`} right={<EvidenceBadge c="market_intel" />}>
-          {s.data.cognition_needs && <><div className="label">What Cognition needs to win</div><List items={s.data.cognition_needs} /></>}
+          {s.data.cognition_needs && <><div className="label">What {cn} needs to win</div><List items={s.data.cognition_needs} /></>}
           <Details label="Full segment profile" className="mt-3">
             <div className="grid gap-5 md:grid-cols-3">
               {FIELDS.filter(([k]) => k !== "cognition_needs").map(([k, label]) => s.data[k] && (
@@ -69,7 +70,7 @@ export default function Customers() {
             <Details className="mt-3">
             <p className="mb-3 text-xs text-slate-500">{p.why}</p>
             <div className="grid gap-4 md:grid-cols-3">
-              <div><div className="label">How Cognition could help</div><List items={p.cognition_use_cases} /></div>
+              <div><div className="label">How {cn} could help</div><List items={p.cognition_use_cases} /></div>
               <div><div className="label">Adoption barriers</div><List items={p.adoption_barriers} /></div>
               <div>
                 <div className="label">Why each skill</div>

@@ -1,5 +1,5 @@
 import { Briefcase } from "lucide-react";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Card, Cite, Details, EvidenceBadge, MARKET_NAMES, PageHeader, Stat, List, Takeaway, useShowMore } from "../components/ui";
 import type { Signal } from "../types";
 
@@ -20,6 +20,7 @@ function SignalRow({ s }: { s: Signal }) {
 }
 
 export default function Radar() {
+  const cn = useCompanyName();
   const { analysis: a } = useApp();
   const h = a!.radar.hiring;
   const sc = a!.scenario;
@@ -30,9 +31,9 @@ export default function Radar() {
   const topMarkets = Object.entries(sc.market_weights).sort((x, y) => y[1] - x[1]).filter(([, w]) => w > 0).slice(0, 3).map(([m]) => MARKET_NAMES[m] || m);
   return (
     <div className="space-y-5">
-      <PageHeader title="Growth signals" question="Where is Cognition heading, and how do we know?" />
+      <PageHeader title="Growth signals" question={`Where is ${cn} heading, and how do we know?`} />
       <Takeaway title={`${a!.radar.drivers.length} public signals point to growth in ${topMarkets.join(", ")}.`}>
-        Cognition already has {h.in_scenario_markets} open roles in these markets. Scenario: {sc.name} <span className="text-slate-400">(our assumption, not a stated plan)</span>
+        {cn} already has {h.in_scenario_markets} open roles in these markets. Scenario: {sc.name} <span className="text-slate-400">(our assumption, not a stated plan)</span>
       </Takeaway>
       <div className="grid gap-3 md:grid-cols-4">
         <Stat label="Supporting signals" value={a!.radar.drivers.length} />

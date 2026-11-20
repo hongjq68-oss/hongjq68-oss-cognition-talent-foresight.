@@ -1,10 +1,11 @@
 import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useApp } from "../state";
+import { useApp, useCompanyName } from "../state";
 import { Bar, Card, List, PoolBadge, Sensitivity, Takeaway } from "../components/ui";
 import { NextStep, RolePicker, StepHeader, WhenChip, heatLabel } from "../components/journey";
 
 export default function WhereToHire() {
+  const cn = useCompanyName();
   const { analysis: a } = useApp();
   const j = a!.journey;
   const [sp, setSp] = useSearchParams();
@@ -44,7 +45,7 @@ export default function WhereToHire() {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-slate-500">Red tags mean a Cognition customer, partner or competitor: agree an approach before contacting their staff.</p>
+          <p className="mt-3 text-xs text-slate-500">Red tags mean a {cn} customer, partner or competitor: agree an approach before contacting their staff.</p>
         </Card>
       </div>
       <div className="grid gap-5 md:grid-cols-2">

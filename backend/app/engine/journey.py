@@ -217,6 +217,7 @@ def build(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list[dic
     title, outcomes = GOALS.get(sc.get("id"), (sc.get("goal") or sc["name"], sc.get("outcomes") or sc.get("business_changes", [])[:3]))
     return {
         "goal": {"title": title, "outcomes": outcomes, "story": sc["hypothesis"],
+                 "inferred": bool(sc.get("inferred")), "basis": sc.get("basis", []),
                  "what_changes": sc.get("business_changes", [])[:4], "risks": sc.get("derailers", [])[:3],
                  "customer_problems": [p["name"] for p in problems[:3]],
                  "top_markets": [MARKET_NAMES[m] for m, wt in sorted(goal_w.items(), key=lambda kv: -kv[1]) if wt >= 0.6]},
