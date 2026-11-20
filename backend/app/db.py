@@ -10,8 +10,11 @@ ROOT = Path(__file__).resolve().parent
 DATA_DIR = Path(os.environ.get("FORESIGHT_DATA_DIR", ROOT.parent / "data"))
 DB_PATH = Path(os.environ.get("FORESIGHT_DB", DATA_DIR / "foresight.db"))
 
+# Rows owned by one company ('cognition', a generated company id, or '*' for the general library).
+COMPANY_SCOPED = ("sources", "signals", "job_postings", "scenarios", "archetypes", "segments", "customer_problems")
+
 JSON_COLUMNS = {
-    "queries", "evidence",
+    "queries", "evidence", "board", "gaps",
     "regions", "segment_ids", "data", "evidence_phrases", "horizon_profile", "cognition_use_cases",
     "adoption_barriers", "signal_ids", "markets", "capability_ids", "teams", "starting_titles",
     "capability_weights", "unconventional_backgrounds", "assessment", "posting_keywords", "learning_needs",
@@ -38,6 +41,9 @@ def session():
 
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript((ROOT / "schema.sql").read_text())
+    for t in COMPANY_SCOPED:
+        if "company_id" not in {r[1] for r in conn.execute(f"PRAGMA table_info({t})")}:
+            conn.execute(f"ALTER TABLE {t} ADD COLUMN company_id TEXT NOT NULL DEFAULT 'cognition'")
     cols = {r[1] for r in conn.execute("PRAGMA table_info(candidates)")}
     if "profile_url" not in cols:
         conn.execute("ALTER TABLE candidates ADD COLUMN profile_url TEXT")

@@ -205,3 +205,18 @@ CREATE TABLE IF NOT EXISTS builder_runs (
   items    INTEGER NOT NULL,
   added    INTEGER NOT NULL
 );
+
+-- Companies the engine can run for. Cognition is hand-curated; others are built from public sources.
+CREATE TABLE IF NOT EXISTS companies (
+  id            TEXT PRIMARY KEY,
+  name          TEXT NOT NULL,
+  website       TEXT,
+  careers_url   TEXT,
+  board         TEXT,                     -- JSON {"provider": "...", "slug": "..."}
+  blog_feed     TEXT,
+  description   TEXT,
+  curated       INTEGER NOT NULL DEFAULT 0,
+  created_at    TEXT NOT NULL,
+  refreshed_at  TEXT,
+  gaps          TEXT NOT NULL DEFAULT '[]'
+);

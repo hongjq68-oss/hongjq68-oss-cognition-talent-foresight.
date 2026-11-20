@@ -16,24 +16,41 @@ class KB:
     organisations: list
     archetypes: dict
     scenarios: dict
+    company: dict | None = None
 
 
-def load(conn) -> KB:
+COGNITION = "cognition"
+
+
+def load(conn, company_id: str = COGNITION) -> KB:
+    """Cognition uses its curated knowledge; any other company uses its own public data plus the general library."""
     pc: dict = {}
     for r in conn.execute("SELECT * FROM problem_capabilities"):
         pc.setdefault(r["problem_id"], {})[r["capability_id"]] = (r["weight"], r["rationale"])
-    by_id = lambda q: {r["id"]: r for r in db.rows(conn.execute(q))}
+    lib = COGNITION if company_id == COGNITION else "*"
+    own = lambda t, extra="": db.rows(conn.execute(f"SELECT * FROM {t} WHERE company_id = ?{extra}", (company_id,)))
+    shared = lambda t: db.rows(conn.execute(f"SELECT * FROM {t} WHERE company_id = ?", (lib,)))
+    by_id = lambda rs: {r["id"]: r for r in rs}
+    company = db.row(conn.execute("SELECT * FROM companies WHERE id = ?", (company_id,)).fetchone())
+    problems = by_id(shared("customer_problems"))
+    orgs = db.rows(conn.execute("SELECT * FROM organisations"))
+    if company_id != COGNITION:
+        # Sensitivity flags describe relationships with Cognition; they don't carry over to another company.
+        me = (company or {}).get("name", "").lower()
+        orgs = [o | {"sensitivity": "none", "sensitivity_note": None} for o in orgs
+                if not (me and (o["name"].lower() == me or o["name"].lower().startswith(me + " ")))]
     return KB(
-        signals=by_id("SELECT * FROM signals"),
-        sources=by_id("SELECT * FROM sources"),
-        jobs=db.rows(conn.execute("SELECT * FROM job_postings WHERE active = 1")),
-        segments=by_id("SELECT * FROM segments"),
-        capabilities=by_id("SELECT * FROM capabilities"),
-        problems=by_id("SELECT * FROM customer_problems"),
-        problem_caps=pc,
-        organisations=db.rows(conn.execute("SELECT * FROM organisations")),
-        archetypes=by_id("SELECT * FROM archetypes"),
-        scenarios=by_id("SELECT * FROM scenarios"),
+        signals=by_id(own("signals")),
+        sources=by_id(own("sources")),
+        jobs=own("job_postings", " AND active = 1"),
+        segments=by_id(shared("segments")),
+        capabilities=by_id(db.rows(conn.execute("SELECT * FROM capabilities"))),
+        problems=problems,
+        problem_caps={k: v for k, v in pc.items() if k in problems},
+        organisations=orgs,
+        archetypes=by_id(shared("archetypes")),
+        scenarios=by_id(own("scenarios")),
+        company=company,
     )
 
 

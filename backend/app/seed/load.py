@@ -7,6 +7,7 @@ from .archetypes import ARCHETYPES
 from .candidates import CANDIDATES
 from .monitors import MONITORS
 from .capabilities import CAPABILITIES
+from . import generic
 from .organisations import ORGANISATIONS
 from .scenarios import SCENARIOS
 from .segments import PROBLEMS, SEGMENTS
@@ -20,12 +21,13 @@ def _source_id(url: str) -> str:
     return "src-" + url.rstrip("/").rsplit("/", 1)[-1][:80]
 
 
-def load_jobs(conn, jobs: list[dict]) -> int:
-    conn.execute("UPDATE job_postings SET active = 0")
+def load_jobs(conn, jobs: list[dict], company_id: str = "cognition") -> int:
+    conn.execute("UPDATE job_postings SET active = 0 WHERE company_id = ?", (company_id,))
+    prefix = "" if company_id == "cognition" else f"{company_id}:"
     for j in jobs:
         market = j.get("market")
         db.upsert(conn, "job_postings", dict(
-            id=j["id"], title=j["title"], department=j.get("department"), team=j.get("team"),
+            id=prefix + str(j["id"]), company_id=company_id, title=j["title"], department=j.get("department"), team=j.get("team"),
             location=", ".join([j.get("location") or ""] + (j.get("secondary_locations") or [])).strip(", "),
             market=MARKET_CODES.get(market, market), published_on=j.get("published_on"), url=j.get("url"),
             retrieved_on=j.get("retrieved_on"), active=1))
@@ -77,6 +79,12 @@ def seed(reset: bool = True) -> None:
             db.upsert(conn, "archetypes", a)
         for s in SCENARIOS:
             db.upsert(conn, "scenarios", s)
+        load_generic(conn)
+        db.upsert(conn, "companies", dict(id="cognition", name="Cognition", website="https://cognition.ai",
+                                          careers_url="https://jobs.ashbyhq.com/cognition",
+                                          board={"provider": "ashby", "slug": "cognition"},
+                                          description="Makers of Devin, the AI software engineer, and Windsurf.",
+                                          curated=1, created_at="2026-11-13T00:00:00+00:00", gaps=[]))
         for m in MONITORS:
             db.upsert(conn, "monitors", m | {"active": 1, "created_at": "2026-11-14T00:00:00+00:00", "last_run_at": None})
         for k in CANDIDATES:
@@ -84,6 +92,28 @@ def seed(reset: bool = True) -> None:
             db.upsert(conn, "candidates", rec)
             for i, e in enumerate(k["evidence"], 1):
                 db.upsert(conn, "candidate_evidence", dict(id=f"{k['id']}-e{i}", candidate_id=k["id"], **e))
+
+
+def load_generic(conn) -> None:
+    """General library used for companies other than Cognition (company_id '*')."""
+    for c in generic.EXTRA_CAPABILITIES:
+        db.upsert(conn, "capabilities", c)
+    for t in generic.THEMES:
+        db.upsert(conn, "segments", {k: t[k] for k in ("id", "name", "data")} | {"company_id": generic.GENERIC})
+    for p in generic.NEEDS:
+        db.upsert(conn, "customer_problems", {k: v for k, v in p.items() if k != "capabilities"} | {"company_id": generic.GENERIC})
+        for cid, (w, why) in p["capabilities"].items():
+            db.upsert(conn, "problem_capabilities", dict(problem_id=p["id"], capability_id=cid, weight=w, rationale=why or None))
+    for r in generic.ROLE_TYPES:
+        db.upsert(conn, "archetypes", r | {"company_id": generic.GENERIC})
+    for o in generic.APAC_TECH_ORGS:
+        db.upsert(conn, "organisations", o)
+    for oid, caps in generic.EXTRA_ORG_CAPS.items():
+        r = conn.execute("SELECT capability_ids FROM organisations WHERE id = ?", (oid,)).fetchone()
+        if r:
+            have = json.loads(r[0])
+            conn.execute("UPDATE organisations SET capability_ids = ? WHERE id = ?",
+                         (json.dumps(have + [c for c in caps if c not in have]), oid))
 
 
 if __name__ == "__main__":

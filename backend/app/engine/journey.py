@@ -214,7 +214,7 @@ def build(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list[dic
                                     "goal_weight": goal_w[m],
                                     "in_pipeline": sum(1 for r in role_lists[a["id"]] if r["market"] == m)} for m in MARKETS]})
 
-    title, outcomes = GOALS.get(sc.get("id"), (sc["name"], sc.get("business_changes", [])[:3]))
+    title, outcomes = GOALS.get(sc.get("id"), (sc.get("goal") or sc["name"], sc.get("outcomes") or sc.get("business_changes", [])[:3]))
     return {
         "goal": {"title": title, "outcomes": outcomes, "story": sc["hypothesis"],
                  "what_changes": sc.get("business_changes", [])[:4], "risks": sc.get("derailers", [])[:3],

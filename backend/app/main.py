@@ -1,5 +1,6 @@
 """Cognition Talent Foresight API."""
 import csv
+import re
 import io
 import os
 import asyncio
@@ -15,6 +16,7 @@ from pydantic import BaseModel
 from . import db
 from .connectors import ashby, cognition_blog
 from .engine import journey, analysis, kb as kb_mod, report
+from .engine import company as company_engine
 from .engine import builders
 from .engine import candidates as cand_engine
 from .seed import load as seed_load
@@ -65,11 +67,15 @@ async def lifespan(_app):
 app = FastAPI(title="Cognition Talent Foresight", lifespan=lifespan)
 
 
-def _kb(conn):
-    return kb_mod.load(conn)
+def _kb(conn, company: str | None = None):
+    cid = company or kb_mod.COGNITION
+    if cid != kb_mod.COGNITION and not conn.execute("SELECT 1 FROM companies WHERE id = ?", (cid,)).fetchone():
+        raise HTTPException(404, "Unknown company")
+    return kb_mod.load(conn, cid)
 
 
 class ScenarioOverrides(BaseModel):
+    company: str | None = None
     scenario_id: str | None = None
     name: str | None = None
     hypothesis: str | None = None
@@ -80,20 +86,21 @@ class ScenarioOverrides(BaseModel):
 
 
 def _analyse(conn, body: ScenarioOverrides):
-    kb = _kb(conn)
+    kb = _kb(conn, body.company)
     if body.scenario_id and body.scenario_id not in kb.scenarios:
         raise HTTPException(404, "Unknown scenario")
-    overrides = {k: v for k, v in body.model_dump().items() if v is not None and k != "scenario_id"}
+    overrides = {k: v for k, v in body.model_dump().items() if v is not None and k not in ("scenario_id", "company")}
     return analysis.run(kb, conn, body.scenario_id, overrides)
 
 
 @app.get("/api/meta")
-def meta():
+def meta(company: str | None = None):
     with db.session() as conn:
-        kb = _kb(conn)
+        kb = _kb(conn, company)
         return {
+            "company": kb.company,
             "scenarios": [{"id": s["id"], "name": s["name"], "hypothesis": s["data"]["hypothesis"],
-                           "goal": journey.GOALS.get(s["id"], (s["name"],))[0]} for s in kb.scenarios.values()],
+                           "goal": journey.GOALS.get(s["id"], (s["data"].get("goal") or s["name"],))[0]} for s in kb.scenarios.values()],
             "segments": [{"id": s["id"], "name": s["name"]} for s in kb.segments.values()],
             "capabilities": [{k: c[k] for k in ("id", "name", "category", "scarcity")} for c in kb.capabilities.values()],
             "markets": ["SG", "AU", "JP", "IN", "KR"],
@@ -121,10 +128,70 @@ def get_report_md(body: ScenarioOverrides = Body(...)):
         return report.to_markdown(report.build(_analyse(conn, body)))
 
 
-@app.get("/api/signals")
-def signals():
+@app.get("/api/companies")
+def companies():
     with db.session() as conn:
-        kb = _kb(conn)
+        rs = db.rows(conn.execute("SELECT * FROM companies ORDER BY curated DESC, name"))
+        for r in rs:
+            r["apac_jobs"] = conn.execute("SELECT COUNT(*) FROM job_postings WHERE company_id = ? AND active = 1 AND market IS NOT NULL",
+                                          (r["id"],)).fetchone()[0]
+        return rs
+
+
+class CompanyIn(BaseModel):
+    name: str
+    website: str | None = None
+    careers_url: str | None = None
+    blog_url: str | None = None
+
+
+def _clean_url(u: str | None) -> str | None:
+    u = (u or "").strip()
+    if not u:
+        return None
+    if not re.match(r"^https?://", u):
+        u = "https://" + u
+    if not re.match(r"^https?://[^\s/]+\.[^\s]+$", u):
+        raise HTTPException(422, f"Not a valid link: {u}")
+    return u
+
+
+@app.post("/api/companies")
+def company_create(body: CompanyIn):
+    if not body.name.strip() or len(body.name) > 80:
+        raise HTTPException(422, "Enter a company name")
+    with db.session() as conn:
+        try:
+            return company_engine.build(conn, body.name, _clean_url(body.website), _clean_url(body.careers_url), _clean_url(body.blog_url))
+        except ValueError as e:
+            raise HTTPException(422, str(e))
+
+
+@app.post("/api/companies/{company_id}/refresh")
+def company_refresh(company_id: str):
+    with db.session() as conn:
+        c = db.row(conn.execute("SELECT * FROM companies WHERE id = ? AND curated = 0", (company_id,)).fetchone())
+        if not c:
+            raise HTTPException(404, "Unknown company")
+        return company_engine.build(conn, c["name"], c["website"], c["careers_url"], c["blog_feed"])
+
+
+@app.delete("/api/companies/{company_id}")
+def company_delete(company_id: str):
+    with db.session() as conn:
+        if not conn.execute("SELECT 1 FROM companies WHERE id = ? AND curated = 0", (company_id,)).fetchone():
+            raise HTTPException(404, "Unknown company")
+        for t in db.COMPANY_SCOPED:
+            conn.execute(f"DELETE FROM {t} WHERE company_id = ?", (company_id,))
+        conn.execute("DELETE FROM companies WHERE id = ?", (company_id,))
+        cand_engine.audit(conn, "recruiter", "company_removed", company_id)
+        return {"ok": True}
+
+
+@app.get("/api/signals")
+def signals(company: str | None = None):
+    with db.session() as conn:
+        kb = _kb(conn, company)
         return [kb_mod.cite(kb, s) | {"summary": kb.signals[s]["summary"], "kind": kb.signals[s]["kind"],
                                       "regions": kb.signals[s]["regions"]} for s in kb.signals]
 

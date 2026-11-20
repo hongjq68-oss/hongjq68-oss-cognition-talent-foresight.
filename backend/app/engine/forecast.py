@@ -100,6 +100,8 @@ def capability_forecast(kb: KB, sc: dict, problems: list[dict], today: date | No
     raw: dict[str, list[float]] = {c: [0.0] * 4 for c in kb.capabilities}
     drivers: dict[str, list[dict]] = {c: [] for c in kb.capabilities}
     from ..seed.segments import SEGMENT_GTM  # static GTM weights per segment
+    from ..seed.generic import THEME_GTM
+    SEGMENT_GTM = SEGMENT_GTM | THEME_GTM
 
     for p in problems:
         for c in p["capabilities"]:
