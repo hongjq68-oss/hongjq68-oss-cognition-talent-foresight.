@@ -143,7 +143,13 @@ def build(kb: KB, conn, sc: dict, capabilities: list[dict], archetypes: list[dic
         when = _when(a["need_by"], min(starts) if starts else None, today)
         top_cap = cap.get(must[0]["id"]) if must else None
         why = next((d["label"] for d in (top_cap or {}).get("drivers", []) if d["type"] in ("problem", "gtm")), None)
+        if why:
+            why = (f"helps {why[0].lower()}{why[1:]}" if sc.get("inferred") and not why.startswith("Go-to-market")
+                   else f"needed for {why[0].lower()}{why[1:]}")
         open_in_goal = [r for r in a["open_roles"] if goal_w.get(r["market"], 0) > 0]
+        if sc.get("inferred") and len(open_in_goal) >= 2 and when["tone"] != "now":
+            # For an inferred plan, live postings are the strongest signal that the hire is needed today.
+            when = when | {"label": "Start now", "tone": "now", "note": "Already hiring"}
 
         countries = []
         for m in MARKETS:

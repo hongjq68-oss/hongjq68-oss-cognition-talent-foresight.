@@ -24,7 +24,7 @@ def run(kb: KB, conn, scenario_id: str | None, overrides: dict | None = None, to
     for c in shortlist:
         c["best_job"] = best.get(c["id"])
     plan = journey.build(kb, conn, sc, caps, archetypes, problems, today=today)
-    return {"journey": plan, "scenario": sc, "radar": radar, "problems": problems, "capabilities": caps, "archetypes": archetypes,
+    return {"company_name": (kb.company or {}).get("name", "Cognition"), "journey": plan, "scenario": sc, "radar": radar, "problems": problems, "capabilities": caps, "archetypes": archetypes,
             "ecosystem": ecosystem, "capability_pools": cap_pools, "strategies": strategies, "candidates": shortlist,
             "open_jobs": jobs,
             "segments": {k: v for k, v in kb.segments.items() if sc["segment_weights"].get(k, 0) > 0}}

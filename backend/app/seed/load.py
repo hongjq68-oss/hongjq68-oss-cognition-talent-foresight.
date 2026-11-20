@@ -80,11 +80,6 @@ def seed(reset: bool = True) -> None:
         for s in SCENARIOS:
             db.upsert(conn, "scenarios", s)
         load_generic(conn)
-        db.upsert(conn, "companies", dict(id="cognition", name="Cognition", website="https://cognition.ai",
-                                          careers_url="https://jobs.ashbyhq.com/cognition",
-                                          board={"provider": "ashby", "slug": "cognition"},
-                                          description="Makers of Devin, the AI software engineer, and Windsurf.",
-                                          curated=1, created_at="2026-11-13T00:00:00+00:00", gaps=[]))
         for m in MONITORS:
             db.upsert(conn, "monitors", m | {"active": 1, "created_at": "2026-11-14T00:00:00+00:00", "last_run_at": None})
         for k in CANDIDATES:
@@ -95,7 +90,12 @@ def seed(reset: bool = True) -> None:
 
 
 def load_generic(conn) -> None:
-    """General library used for companies other than Cognition (company_id '*')."""
+    """General library used for companies other than Cognition (company_id '*'). Safe to re-run."""
+    db.upsert(conn, "companies", dict(id="cognition", name="Cognition", website="https://cognition.ai",
+                                      careers_url="https://jobs.ashbyhq.com/cognition",
+                                      board={"provider": "ashby", "slug": "cognition"},
+                                      description="Makers of Devin, the AI software engineer, and Windsurf.",
+                                      curated=1, created_at="2026-11-13T00:00:00+00:00", gaps=[]))
     for c in generic.EXTRA_CAPABILITIES:
         db.upsert(conn, "capabilities", c)
     for t in generic.THEMES:

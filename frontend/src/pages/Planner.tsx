@@ -30,8 +30,8 @@ export default function Planner() {
 
   useEffect(() => {
     const id = overrides.scenario_id;
-    if (id) api.analysis({ scenario_id: id }).then(setBaseline);
-  }, [overrides.scenario_id]);
+    if (id) api.analysis({ company: overrides.company, scenario_id: id }).then(setBaseline);
+  }, [overrides.company, overrides.scenario_id]);
 
   const apply = () => setOverrides({ scenario_id: overrides.scenario_id, name: name === base.name ? `${base.name} (adjusted)` : name, segment_weights: segW, market_weights: mktW });
   const b = Object.fromEntries((baseline?.capabilities || []).map((c) => [c.id, c]));

@@ -12,6 +12,7 @@ def _i(text, cls, cites=()):
 
 def build(a: dict) -> dict:
     sc, caps, probs = a["scenario"], a["capabilities"], a["problems"]
+    cn = a.get("company_name", "Cognition")
     top_caps = caps[:10]
     immediate = [c for c in caps if c["classification"] == "immediate"]
     emerging = [c for c in caps if c["classification"] == "emerging"]
@@ -22,13 +23,13 @@ def build(a: dict) -> dict:
     sections = [
         ("Business goal", [_i(sc["hypothesis"], "hypothesis")] + [_i(x, "hypothesis") for x in sc["business_changes"]]),
         ("Why we think this", [_i(f"{d['title']} — {d['summary']}", d["evidence_class"], [d]) for d in a["radar"]["drivers"]]
-         + [_i(f"Cognition lists {hiring['in_scenario_markets']} open roles in the scenario markets ({', '.join(f'{m}: {n}' for m, n in hiring['by_market'].items())}).",
+         + [_i(f"{cn} lists {hiring['in_scenario_markets']} open roles in the scenario markets ({', '.join(f'{m}: {n}' for m, n in hiring['by_market'].items())}).",
                "verified_fact", [hiring["source"]])]),
         ("Customer problems", [_i(f"{p['segment']}: {p['name']} — {p['description']}", p["evidence_class"], p["citations"]) for p in probs[:7]]),
         ("Skills we need", [_i(f"{c['name']} ({c['category']}) — {c['classification_label']}; peak demand {c['peak']:.0f}/100, "
                                         f"scarcity {c['scarcity']}/5, lead time ~{c['lead_weeks']} weeks, confidence {c['confidence']}.", "prediction") for c in top_caps]),
         ("Key hires", [_i(f"{x['name']} — {x['summary']} (demand score {x['score']:.0f}; "
-                                  f"{len(x['open_roles'])} matching open Cognition roles)", "recommendation",
+                                  f"{len(x['open_roles'])} matching open {cn} roles)", "recommendation",
                                   [{"title": r["title"], "url": r["url"], "date": r["published_on"], "evidence_class": "verified_fact"} for r in x["open_roles"][:3]])
                                for x in a["archetypes"][:6]]),
         ("Less obvious places to find people", [_i(f"{g['label']}: " + "; ".join(o["name"] for o in g["organisations"][:5]), "market_intel")

@@ -31,6 +31,7 @@ Tests: `cd backend && .venv/bin/python -m pytest -q`
 | Area | Contents |
 |---|---|
 | Hiring plan (start here) | Five steps in plain language: **Business goal** → **Key hires** (roles, timing, open jobs) → **Where to hire** (countries, companies, areas) → **Talent map** (role type × country heat map) → **Shortlist** (automatic, from the pipeline and Find builders) |
+| Company switcher (top bar) | Pick Cognition or **+ Add a company…**: type a name (optionally its careers page or blog feed) and the app builds the same 5 steps from its public jobs and news |
 | A. Business Growth Radar | 29 dated signals from cognition.ai/blog, plus 114 live roles from Cognition's public Ashby board used as a hiring signal |
 | B. Customer Opportunity | 7 segments and 21 customer problems, each with severity, complexity, use cases and adoption barriers |
 | C. Capability Forecast | 36 capabilities in 5 categories. Demand for now/6/12/24 months, scarcity, lead time, need-by and start-search dates, 5 classifications, confidence |

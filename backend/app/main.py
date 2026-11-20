@@ -55,6 +55,7 @@ async def lifespan(_app):
     else:
         with db.session() as conn:
             db.init_schema(conn)
+            seed_load.load_generic(conn)
             if not conn.execute("SELECT 1 FROM monitors").fetchone():
                 for m in MONITORS:
                     db.upsert(conn, "monitors", m | {"active": 1, "created_at": builders._now().isoformat(timespec="seconds")})

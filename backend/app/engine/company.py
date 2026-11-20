@@ -113,8 +113,9 @@ def infer_goals(name: str, jobs: list[dict], signals: list[dict]) -> list[dict]:
              else "No open APAC jobs found on a public careers board", f"{len(signals)} public news items and posts read"]
 
     def sig_ids(themes, markets):
-        hits = [s for s in signals if set(s["segment_ids"]) & set(themes) or set(s["regions"]) & set(markets)]
-        return [s["id"] for s in sorted(hits, key=lambda s: s["happened_on"] or "", reverse=True)[:6]]
+        recent = sorted(signals, key=lambda s: s["happened_on"] or "", reverse=True)
+        hits = [s for s in recent if set(s["segment_ids"]) & set(themes) or set(s["regions"]) & set(markets)]
+        return [s["id"] for s in (hits + [s for s in recent if s not in hits])[:6]]
 
     def goal(id_, title, hypothesis, seg_w, mkt_w, themes):
         lead = [t for t in themes if t in tdata][:3]
@@ -127,10 +128,12 @@ def infer_goals(name: str, jobs: list[dict], signals: list[dict]) -> list[dict]:
             goal=title, outcomes=[g for t in lead for g in tdata[t]["data"]["goals"]][:3], inferred=True, basis=basis))
 
     focus = [m for m, w in sorted(mw.items(), key=lambda kv: -kv[1]) if w >= 0.6]
-    out = [goal("balanced", f"Grow {name} in APAC over the next 12 months",
-                f"{name} keeps growing in APAC, led by " + (", ".join(NAMES[m] for m in focus[:3]) or "its main markets")
-                + ", with hiring focused on " + ", ".join(tdata[t]["name"].lower() for t in list(weights)[:3]) + ".",
-                weights, mw, list(weights))]
+    themes_txt = ", ".join(tdata[t]["name"].lower() for t in list(weights)[:3])
+    hypothesis = (f"{name} keeps growing in APAC, led by " + (", ".join(NAMES[m] for m in focus[:3]) or "its main markets")
+                  + f", with hiring focused on {themes_txt}." if apac or signals else
+                  f"We found no public jobs or news for {name}, so this is a starting template, not a forecast: "
+                  f"a typical APAC expansion focused on {themes_txt}. Add the careers page or blog link to make it specific.")
+    out = [goal("balanced", f"Grow {name} in APAC over the next 12 months", hypothesis, weights, mw, list(weights))]
     for m in sorted(MARKETS, key=lambda m: -(by_market[m] + sig_market[m]))[:2]:
         if by_market[m] < 3 and sig_market[m] < 2:
             continue

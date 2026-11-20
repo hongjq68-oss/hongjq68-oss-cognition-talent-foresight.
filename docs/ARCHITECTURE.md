@@ -23,6 +23,16 @@
    - Shortlist: pipeline candidates ranked by 0.8 × past-work fit (title-only still scores 0), plus +10 for a top-2 country, +6 for a targeted talent area and +4 for a target company; Find-builders leads matched on skills. Suggestions only.
 6. **analysis.py**: runs the full chain for one scenario.
 7. **report.py**: builds the 11-section executive report. Every line carries an evidence class and its citations.
+8. **company.py** (any company): `build()` creates a company pack from public sources and `infer_goals()` proposes goals from it.
+   - Jobs: tries Ashby, Greenhouse, Lever and SmartRecruiters by name slug, or uses a pasted careers-board URL (`connectors/company.py`).
+   - Signals: the company's own RSS/Atom feed (pasted or auto-discovered from the website), Hacker News stories (Algolia, 15+ points, 24 months) and the Wikipedia summary. Google News is not used.
+   - Each APAC job is mapped to a generic role type (`seed/generic.py`) by the longest matching title keyword. Goals are weighted by the role mix, APAC hiring by country and theme keywords in the news. They are stored as scenarios with `inferred=1`, and the app labels them as suggestions to confirm with the business.
+   - Customer / partner / competitor flags are not guessed for added companies; all organisations are neutral.
+   - Inferred plans mark a key hire "Start now" when it has 2+ live postings in the goal countries.
+
+### Company isolation
+
+`signals`, `sources`, `job_postings`, `scenarios`, `archetypes`, `segments` and `customer_problems` carry `company_id`. Cognition keeps its curated rows (`cognition`); added companies own their jobs, signals, sources and scenarios and share the generic library (`*`) for segments, problems and role types. Capabilities, organisations and the candidate pipeline are shared. Rebuilding a company replaces its rows; `DELETE /api/companies/{id}` removes them and refuses curated companies.
 
 ## Source integrations
 
@@ -30,6 +40,8 @@
 |---|---|---|
 | Cognition blog | Public HTML index | Live (`POST /api/refresh`) |
 | Cognition jobs | Ashby public posting API | Live |
+| Other companies' jobs | Ashby, Greenhouse, Lever, SmartRecruiters public posting APIs | Live (`POST /api/companies`) |
+| Other companies' news | Own RSS/Atom feed, Hacker News (Algolia), Wikipedia REST summary | Live |
 | Press / newsroom | RSS or public pages | Phase 2 |
 | GitHub | Official REST API (`GITHUB_TOKEN` optional; anonymous is 60 req/h) | Live, Builder Evidence |
 | Hacker News, dev.to, arXiv, Hugging Face, npm, RSS | Public APIs/feeds, no key | Live, Builder Evidence |

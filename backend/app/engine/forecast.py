@@ -68,8 +68,19 @@ def hiring_signals(kb: KB, markets: set[str]) -> dict:
     by_market = {m: sum(1 for j in in_market if j["market"] == m) for m in sorted(markets)}
     return {"total_open_roles": len(kb.jobs), "in_scenario_markets": len(in_market), "by_department": by_dept,
             "by_market": by_market, "by_archetype": by_arch,
-            "source": {"title": "Cognition public job board (Ashby)", "url": "https://jobs.ashbyhq.com/cognition",
+            "source": _board_source(kb) | {
                        "date": max((j["retrieved_on"] or "" for j in kb.jobs), default=None), "evidence_class": "verified_fact"}}
+
+
+def _board_source(kb: KB) -> dict:
+    co = kb.company or {}
+    board = co.get("board") if co else {"provider": "ashby", "slug": "cognition"}
+    if not board:
+        return {"title": f"No public job board found for {co.get('name')}", "url": co.get("careers_url")}
+    home = {"ashby": "https://jobs.ashbyhq.com/{}", "greenhouse": "https://job-boards.greenhouse.io/{}",
+            "lever": "https://jobs.lever.co/{}", "smartrecruiters": "https://careers.smartrecruiters.com/{}"}
+    return {"title": f"{co.get('name', 'Cognition')} public job board ({board['provider'].title()})",
+            "url": home.get(board["provider"], "{}").format(board["slug"])}
 
 
 def rank_problems(kb: KB, sc: dict) -> list[dict]:
@@ -126,7 +137,7 @@ def capability_forecast(kb: KB, sc: dict, problems: list[dict], today: date | No
                 continue
             for h in range(4):
                 raw[cid][h] += HIRING_UNIT * n * wt * HIRING_PROFILE[h]
-            drivers[cid].append({"type": "hiring", "id": aid, "label": f"{len(roles)} open Cognition role(s): {kb.archetypes[aid]['name']}",
+            drivers[cid].append({"type": "hiring", "id": aid, "label": f"{len(roles)} open {(kb.company or {}).get('name', 'Cognition')} role(s): {kb.archetypes[aid]['name']}",
                                  "contribution": round(HIRING_UNIT * n * wt, 3)})
     for cid, b in sc.get("capability_boosts", {}).items():
         raw[cid] = [v * b for v in raw[cid]]

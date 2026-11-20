@@ -25,7 +25,7 @@ export default function KeyHires() {
                   <WhenChip w={h.when} />
                 </div>
                 <p className="mt-0.5 text-sm text-slate-600">{h.summary}</p>
-                {h.why && <p className="mt-1 text-sm text-slate-800"><span className="font-medium">Why it matters: </span>needed for {h.why.toLowerCase()}.</p>}
+                {h.why && <p className="mt-1 text-sm text-slate-800"><span className="font-medium">Why it matters: </span>{h.why}.</p>}
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {h.must_have.map((m) => <span key={m} className="chip bg-slate-100 text-slate-700">{m}</span>)}
                 </div>

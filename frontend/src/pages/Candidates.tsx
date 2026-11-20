@@ -233,7 +233,7 @@ function Detail({ c, onChange }: { c: Candidate; onChange: () => void }) {
 
 export default function Candidates() {
   const cn = useCompanyName();
-  const { analysis: a, reload } = useApp();
+  const { analysis: a, reload, company, reloadMeta } = useApp();
   const [params] = useSearchParams();
   const [sel, setSel] = useState<string>(params.get("c") || a!.candidates[0]?.id);
   const [q, setQ] = useState("");
@@ -244,7 +244,7 @@ export default function Candidates() {
   const markets = [...new Set(a!.open_jobs.map((j) => j.market))];
   const pulled = a!.open_jobs.map((j) => j.retrieved_on).filter(Boolean).sort().pop();
   const [refreshing, setRefreshing] = useState(false);
-  const refresh = async () => { setRefreshing(true); try { await api.refresh(); await reload(); } finally { setRefreshing(false); } };
+  const refresh = async () => { setRefreshing(true); try { if (company === "cognition") await api.refresh(); else await api.refreshCompany(company); await reloadMeta(); await reload(); } finally { setRefreshing(false); } };
   const c = a!.candidates.find((x) => x.id === sel);
   const count = (s: string) => a!.candidates.filter((x) => x.status === s).length;
   const strong = a!.candidates.filter((x) => x.best_fit.score >= 65).length;

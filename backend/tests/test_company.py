@@ -93,3 +93,4 @@ def test_company_without_board_still_gets_a_plan(client, stub):
     assert c["jobs"] == 0 and any("No public careers board" in g for g in c["gaps"])
     a = client.post("/api/analysis", json={"company": c["id"], "scenario_id": f"{c['id']}:balanced"}).json()
     assert a["journey"]["hires"] and a["open_jobs"] == []
+    assert a["radar"]["hiring"]["source"]["title"].startswith("No public job board found")

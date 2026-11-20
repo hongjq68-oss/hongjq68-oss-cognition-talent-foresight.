@@ -45,7 +45,9 @@ export function AppState({ children }: { children: ReactNode }) {
     setOverridesRaw({ company: id, scenario_id: id === "cognition" ? "apac_banking" : `${id}:balanced` });
   }, []);
 
-  useEffect(() => { reloadMeta().catch((e) => setError(String(e))); }, [reloadMeta]);
+  useEffect(() => {
+    reloadMeta().catch((e) => (company !== "cognition" ? setCompany("cognition") : setError(String(e))));
+  }, [reloadMeta, company, setCompany]);
   useEffect(() => { reload(); }, [reload]);
 
   return (
